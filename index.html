@@ -1,1 +1,1762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
+  <title>Adopt Me Control Center</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0b0d12;
+      --panel: #12151c;
+      --panel2: #181c25;
+      --border: #252b36;
+      --text: #f4f6fa;
+      --muted: #8e98a8;
+      --green: #42d392;
+      --red: #ff5d6c;
+      --yellow: #ffc857;
+      --blue: #5b8cff;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      border-right: 1px solid var(--border);
+      background: #0e1016;
+      padding: 22px 14px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 25px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: white;
+      font-weight: 800;
+    }
+
+    .logo-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .logo-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .nav-title {
+      color: #626c7d;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 15px 12px 7px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      padding: 11px 12px;
+      border-radius: 9px;
+      margin-bottom: 3px;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: #171b23;
+      color: white;
+    }
+
+    .nav-item.active {
+      background: #1b2230;
+      color: white;
+    }
+
+    .main {
+      margin-left: 240px;
+      width: calc(100% - 240px);
+      padding: 25px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .page-title {
+      font-size: 25px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .btn:hover {
+      background: #1b2029;
+    }
+
+    .btn-primary {
+      border-color: transparent;
+      background: var(--blue);
+    }
+
+    .btn-primary:hover {
+      background: #709bff;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-value {
+      margin-top: 9px;
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .stat-small {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 17px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .tools {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search {
+      width: 220px;
+      border: 1px solid var(--border);
+      background: #0e1117;
+      color: white;
+      padding: 9px 11px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--blue);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+    }
+
+    th {
+      color: #697486;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      text-align: left;
+      padding: 12px 16px;
+      background: #10131a;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #171b22;
+    }
+
+    .user {
+      font-weight: 700;
+    }
+
+    .rf {
+      color: var(--muted);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status.online {
+      color: var(--green);
+      background: rgba(66, 211, 146, .08);
+    }
+
+    .status.offline {
+      color: var(--red);
+      background: rgba(255, 93, 108, .08);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 32px;
+      border: 1px solid var(--border);
+      background: #11151b;
+      color: white;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      background: #202630;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(700px, 100%);
+      max-height: 85vh;
+      overflow: hidden;
+      background: #11141b;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.5);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-weight: 800;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 18px;
+      overflow-y: auto;
+      max-height: calc(85vh - 70px);
+    }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .inventory-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 11px 13px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .inventory-name {
+      font-size: 12px;
+    }
+
+    .inventory-count {
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 35px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #303744;
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .toast-container {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: #181c24;
+      border: 1px solid var(--border);
+      padding: 12px 15px;
+      border-radius: 9px;
+      font-size: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+      animation: toastIn .2s ease;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .config-row {
+      margin-bottom: 15px;
+    }
+
+    .config-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .config-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #0e1117;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .config-input:focus {
+      border-color: var(--blue);
+    }
+
+    @media (max-width: 1000px) {
+      .stats {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        width: 65px;
+        padding: 15px 8px;
+      }
+
+      .logo-title,
+      .logo-subtitle,
+      .nav-title {
+        display: none;
+      }
+
+      .logo {
+        justify-content: center;
+        padding: 5px 0 20px;
+      }
+
+      .main {
+        margin-left: 65px;
+        width: calc(100% - 65px);
+        padding: 15px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+
+      .stat {
+        padding: 13px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .search {
+        width: 150px;
+      }
+
+      .inventory-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <div class="logo-icon">AM</div>
+
+      <div>
+        <div class="logo-title">
+          Adopt Me
+        </div>
+
+        <div class="logo-subtitle">
+          Control Center
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-title">
+      Main
+    </div>
+
+    <button
+      class="nav-item active"
+      onclick="showSection('dashboard', this)"
+    >
+      ◈ &nbsp; Dashboard
+    </button>
+
+    <button
+      class="nav-item"
+      onclick="showSection('bots', this)"
+    >
+      ◉ &nbsp; Bots
+    </button>
+
+    <button
+      class="nav-item"
+      onclick="showSection('inventory', this)"
+    >
+      ◫ &nbsp; Inventory
+    </button>
+
+    <div class="nav-title">
+      System
+    </div>
+
+    <button
+      class="nav-item"
+      onclick="showSection('settings', this)"
+    >
+      ⚙ &nbsp; Settings
+    </button>
+
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <div>
+        <h1 class="page-title">
+          Dashboard
+        </h1>
+
+        <div class="page-subtitle">
+          Adopt Me Bot Monitoring System
+        </div>
+      </div>
+
+      <div class="top-actions">
+
+        <button
+          class="btn"
+          onclick="loadDashboard()"
+        >
+          ↻ Refresh
+        </button>
+
+      </div>
+
+    </div>
+
+    <section id="dashboard">
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-label">
+            TOTAL BOTS
+          </div>
+
+          <div
+            class="stat-value"
+            id="totalBots"
+          >
+            0
+          </div>
+
+          <div class="stat-small">
+            Registered bots
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            ONLINE
+          </div>
+
+          <div
+            class="stat-value"
+            id="onlineBots"
+          >
+            0
+          </div>
+
+          <div class="stat-small">
+            Active
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            OFFLINE
+          </div>
+
+          <div
+            class="stat-value"
+            id="offlineBots"
+          >
+            0
+          </div>
+
+          <div class="stat-small">
+            No recent heartbeat
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            CRYSTAL EGGS
+          </div>
+
+          <div
+            class="stat-value"
+            id="totalCrystalEggs"
+          >
+            0
+          </div>
+
+          <div class="stat-small">
+            Across all bots
+          </div>
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            Bot Monitoring
+          </div>
+
+          <div class="tools">
+
+            <input
+              id="searchInput"
+              class="search"
+              placeholder="Search bot / RF..."
+              oninput="renderBots()"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>RF</th>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Bucks</th>
+                <th>Crystal Egg</th>
+                <th>Auto Trade</th>
+                <th>Last Heartbeat</th>
+                <th>Action</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="botTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="bots"
+      style="display:none"
+    >
+
+      <div class="panel">
+
+        <div class="panel-header">
+          <div class="panel-title">
+            All Bots
+          </div>
+        </div>
+
+        <div class="empty">
+          Gunakan tabel Dashboard untuk
+          monitoring dan kontrol bot.
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="inventory"
+      style="display:none"
+    >
+
+      <div class="panel">
+
+        <div class="panel-header">
+          <div class="panel-title">
+            Inventory
+          </div>
+        </div>
+
+        <div class="empty">
+          Pilih tombol inventory 📦 pada bot
+          untuk melihat isi tas.
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="settings"
+      style="display:none"
+    >
+
+      <div class="panel">
+
+        <div class="panel-header">
+          <div class="panel-title">
+            System Information
+          </div>
+        </div>
+
+        <div
+          style="padding:20px;color:#8e98a8;font-size:13px;line-height:1.8"
+        >
+          <div>
+            Worker:
+            <strong id="workerStatus">
+              Checking...
+            </strong>
+          </div>
+
+          <div>
+            KV:
+            <strong id="kvStatus">
+              Checking...
+            </strong>
+          </div>
+
+          <div>
+            Last refresh:
+            <strong id="lastRefresh">
+              -
+            </strong>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<!-- INVENTORY MODAL -->
+
+<div
+  class="modal-backdrop"
+  id="inventoryModal"
+>
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <div class="modal-title">
+        Inventory
+        <span
+          id="inventoryUsername"
+          style="color:#8e98a8"
+        ></span>
+      </div>
+
+      <button
+        class="close"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div
+      class="modal-body"
+      id="inventoryBody"
+    >
+
+      <div class="loading">
+
+        <div class="spinner"></div>
+
+        Loading inventory...
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- CONFIG MODAL -->
+
+<div
+  class="modal-backdrop"
+  id="configModal"
+>
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <div class="modal-title">
+        Bot Configuration
+      </div>
+
+      <button
+        class="close"
+        onclick="closeConfig()"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <input
+        type="hidden"
+        id="configUsername"
+      >
+
+      <div class="config-row">
+
+        <label class="config-label">
+          Bot Username
+        </label>
+
+        <input
+          id="configUsernameDisplay"
+          class="config-input"
+          disabled
+        >
+
+      </div>
+
+      <div class="config-row">
+
+        <label class="config-label">
+          Receiver
+        </label>
+
+        <input
+          id="receiverInput"
+          class="config-input"
+          placeholder="Username penerima"
+        >
+
+      </div>
+
+      <div class="config-row">
+
+        <label class="config-label">
+          Item Target
+        </label>
+
+        <input
+          id="itemTargetInput"
+          class="config-input"
+          placeholder="Crystal Egg"
+        >
+
+      </div>
+
+      <div class="config-row">
+
+        <label
+          class="config-label"
+        >
+          Auto Trade
+        </label>
+
+        <select
+          id="autoTradeInput"
+          class="config-input"
+        >
+
+          <option value="false">
+            OFF
+          </option>
+
+          <option value="true">
+            ON
+          </option>
+
+        </select>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        style="width:100%"
+        onclick="saveConfig()"
+      >
+        Simpan Configuration
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div
+  class="toast-container"
+  id="toastContainer"
+></div>
+
+<script>
+
+  var bots = [];
+  var currentInventoryBot = "";
+  var inventoryRefreshTimer = null;
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat("id-ID")
+      .format(Number(value || 0));
+  }
+
+  function formatTime(timestamp) {
+
+    if (!timestamp) {
+      return "-";
+    }
+
+    return new Date(timestamp)
+      .toLocaleString("id-ID", {
+        dateStyle: "short",
+        timeStyle: "medium"
+      });
+  }
+
+  function showToast(message) {
+
+    var container =
+      document.getElementById(
+        "toastContainer"
+      );
+
+    var toast =
+      document.createElement("div");
+
+    toast.className = "toast";
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(function () {
+      toast.remove();
+    }, 3000);
+  }
+
+  function showSection(section, button) {
+
+    var sections = [
+      "dashboard",
+      "bots",
+      "inventory",
+      "settings"
+    ];
+
+    sections.forEach(function (id) {
+
+      var element =
+        document.getElementById(id);
+
+      if (element) {
+        element.style.display =
+          id === section
+            ? "block"
+            : "none";
+      }
+
+    });
+
+    document
+      .querySelectorAll(".nav-item")
+      .forEach(function (item) {
+        item.classList.remove("active");
+      });
+
+    if (button) {
+      button.classList.add("active");
+    }
+  }
+
+  async function loadDashboard() {
+
+    try {
+
+      var response =
+        await fetch(
+          "/api/dashboard/data"
+        );
+
+      var data =
+        await response.json();
+
+      if (!data.success &&
+          !Array.isArray(data.bots)) {
+
+        throw new Error(
+          data.error ||
+          "Gagal mengambil data"
+        );
+      }
+
+      bots = data.bots || [];
+
+      document.getElementById(
+        "totalBots"
+      ).textContent =
+        formatNumber(data.totalBots);
+
+      document.getElementById(
+        "onlineBots"
+      ).textContent =
+        formatNumber(data.onlineBots);
+
+      document.getElementById(
+        "offlineBots"
+      ).textContent =
+        formatNumber(data.offlineBots);
+
+      document.getElementById(
+        "totalCrystalEggs"
+      ).textContent =
+        formatNumber(
+          data.totalCrystalEggs
+        );
+
+      document.getElementById(
+        "lastRefresh"
+      ).textContent =
+        new Date().toLocaleTimeString(
+          "id-ID"
+        );
+
+      renderBots();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Gagal mengambil data dashboard"
+      );
+
+    }
+  }
+
+  function renderBots() {
+
+    var table =
+      document.getElementById(
+        "botTable"
+      );
+
+    var search =
+      document.getElementById(
+        "searchInput"
+      ).value
+        .toLowerCase()
+        .trim();
+
+    var filtered =
+      bots.filter(function (bot) {
+
+        var username =
+          String(
+            bot.username || ""
+          ).toLowerCase();
+
+        var rf =
+          String(
+            bot.rf_location || ""
+          ).toLowerCase();
+
+        return (
+          username.includes(search) ||
+          rf.includes(search)
+        );
+
+      });
+
+    if (filtered.length === 0) {
+
+      table.innerHTML =
+        '<tr><td colspan="8">' +
+        '<div class="empty">' +
+        'Tidak ada bot ditemukan.' +
+        '</div>' +
+        '</td></tr>';
+
+      return;
+    }
+
+    table.innerHTML =
+      filtered.map(function (bot) {
+
+        var online =
+          bot.status === "ONLINE";
+
+        return (
+          "<tr>" +
+
+          "<td class='rf'>" +
+          escapeHtml(
+            bot.rf_location
+          ) +
+          "</td>" +
+
+          "<td>" +
+          "<div class='user'>" +
+          escapeHtml(
+            bot.username
+          ) +
+          "</div>" +
+          "</td>" +
+
+          "<td>" +
+
+          "<span class='status " +
+          (online
+            ? "online"
+            : "offline") +
+          "'>" +
+
+          "<span class='dot'></span>" +
+
+          (online
+            ? "ONLINE"
+            : "OFFLINE") +
+
+          "</span>" +
+
+          "</td>" +
+
+          "<td>" +
+          formatNumber(bot.bucks) +
+          "</td>" +
+
+          "<td>" +
+          formatNumber(
+            bot.crystalEggCount
+          ) +
+          "</td>" +
+
+          "<td>" +
+
+          (
+            bot.autotrade_status
+              ? '<span class="status online">ON</span>'
+              : '<span class="status offline">OFF</span>'
+          ) +
+
+          "</td>" +
+
+          "<td>" +
+          formatTime(
+            bot.lastHeartbeat
+          ) +
+          "</td>" +
+
+          "<td>" +
+
+          "<div class='actions'>" +
+
+          "<button " +
+          "class='icon-btn' " +
+          "title='Refresh Inventory' " +
+          "onclick='requestInventory(" +
+          JSON.stringify(
+            bot.username
+          ) +
+          ")'>" +
+          "📦" +
+          "</button>" +
+
+          "<button " +
+          "class='icon-btn' " +
+          "title='Configuration' " +
+          "onclick='openConfig(" +
+          JSON.stringify(
+            bot.username
+          ) +
+          ")'>" +
+          "⚙" +
+          "</button>" +
+
+          "</div>" +
+
+          "</td>" +
+
+          "</tr>"
+        );
+
+      }).join("");
+
+  }
+
+  async function requestInventory(
+    username
+  ) {
+
+    currentInventoryBot =
+      username;
+
+    openInventoryModal(
+      username
+    );
+
+    document.getElementById(
+      "inventoryBody"
+    ).innerHTML =
+      '<div class="loading">' +
+      '<div class="spinner"></div>' +
+      'Mengirim perintah ke bot...' +
+      '</div>';
+
+    try {
+
+      var response =
+        await fetch(
+          "/api/command/inventory",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              username: username
+            })
+          }
+        );
+
+      var data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "Gagal mengirim command"
+        );
+      }
+
+      showToast(
+        "Perintah refresh dikirim ke " +
+        username
+      );
+
+      document.getElementById(
+        "inventoryBody"
+      ).innerHTML =
+        '<div class="loading">' +
+        '<div class="spinner"></div>' +
+        'Menunggu inventory dari bot...' +
+        '</div>';
+
+      startInventoryPolling(
+        username
+      );
+
+    } catch (error) {
+
+      showToast(error.message);
+
+      document.getElementById(
+        "inventoryBody"
+      ).innerHTML =
+        '<div class="empty">' +
+        escapeHtml(
+          error.message
+        ) +
+        '</div>';
+
+    }
+  }
+
+  function startInventoryPolling(
+    username
+  ) {
+
+    if (inventoryRefreshTimer) {
+      clearInterval(
+        inventoryRefreshTimer
+      );
+    }
+
+    var started =
+      Date.now();
+
+    inventoryRefreshTimer =
+      setInterval(
+        async function () {
+
+          if (
+            Date.now() - started >
+            45000
+          ) {
+
+            clearInterval(
+              inventoryRefreshTimer
+            );
+
+            inventoryRefreshTimer =
+              null;
+
+            showToast(
+              "Bot belum mengirim inventory."
+            );
+
+            return;
+          }
+
+          try {
+
+            var response =
+              await fetch(
+                "/api/inventory/" +
+                encodeURIComponent(
+                  username
+                )
+              );
+
+            var data =
+              await response.json();
+
+            if (
+              data.success &&
+              data.inventory
+            ) {
+
+              clearInterval(
+                inventoryRefreshTimer
+              );
+
+              inventoryRefreshTimer =
+                null;
+
+              renderInventory(
+                data.inventory
+              );
+
+              showToast(
+                "Inventory berhasil diperbarui."
+              );
+
+            }
+
+          } catch (error) {
+            console.error(error);
+          }
+
+        },
+        2000
+      );
+  }
+
+  function openInventoryModal(
+    username
+  ) {
+
+    document.getElementById(
+      "inventoryUsername"
+    ).textContent =
+      " — " +
+      username;
+
+    document.getElementById(
+      "inventoryModal"
+    ).classList.add("show");
+
+  }
+
+  function closeModal() {
+
+    document.getElementById(
+      "inventoryModal"
+    ).classList.remove("show");
+
+    if (inventoryRefreshTimer) {
+
+      clearInterval(
+        inventoryRefreshTimer
+      );
+
+      inventoryRefreshTimer =
+        null;
+
+    }
+  }
+
+  async function openConfig(
+    username
+  ) {
+
+    var bot =
+      bots.find(function (item) {
+        return item.username ===
+          username;
+      });
+
+    if (!bot) {
+      return;
+    }
+
+    document.getElementById(
+      "configUsername"
+    ).value =
+      username;
+
+    document.getElementById(
+      "configUsernameDisplay"
+    ).value =
+      username;
+
+    document.getElementById(
+      "autoTradeInput"
+    ).value =
+      bot.autotrade_status
+        ? "true"
+        : "false";
+
+    document.getElementById(
+      "configModal"
+    ).classList.add("show");
+  }
+
+  function closeConfig() {
+
+    document.getElementById(
+      "configModal"
+    ).classList.remove("show");
+
+  }
+
+  async function saveConfig() {
+
+    var username =
+      document.getElementById(
+        "configUsername"
+      ).value;
+
+    var receiver =
+      document.getElementById(
+        "receiverInput"
+      ).value;
+
+    var itemTarget =
+      document.getElementById(
+        "itemTargetInput"
+      ).value;
+
+    var autotrade =
+      document.getElementById(
+        "autoTradeInput"
+      ).value === "true";
+
+    try {
+
+      var response =
+        await fetch(
+          "/api/command/config",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              bot_username:
+                username,
+              autotrade:
+                autotrade,
+              item_target:
+                itemTarget,
+              receiver:
+                receiver
+            })
+          }
+        );
+
+      var data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "Gagal menyimpan config"
+        );
+      }
+
+      showToast(
+        "Configuration dikirim ke bot."
+      );
+
+      closeConfig();
+
+      loadDashboard();
+
+    } catch (error) {
+
+      showToast(
+        error.message
+      );
+
+    }
+  }
+
+  function renderInventory(
+    inventory
+  ) {
+
+    var body =
+      document.getElementById(
+        "inventoryBody"
+      );
+
+    var grouped =
+      inventory.grouped || [];
+
+    if (grouped.length === 0) {
+
+      body.innerHTML =
+        '<div class="empty">' +
+        'Inventory kosong.' +
+        '</div>';
+
+      return;
+    }
+
+    body.innerHTML =
+      "<div style='margin-bottom:15px;color:#8e98a8;font-size:12px'>" +
+      "Total item: " +
+      formatNumber(
+        inventory.totalItems
+      ) +
+      " • Crystal Egg: " +
+      formatNumber(
+        inventory.crystalEggCount
+      ) +
+      "</div>" +
+
+      "<div class='inventory-grid'>" +
+
+      grouped.map(function (item) {
+
+        return (
+          "<div class='inventory-item'>" +
+
+          "<span class='inventory-name'>" +
+          escapeHtml(
+            item.name
+          ) +
+          "</span>" +
+
+          "<span class='inventory-count'>" +
+          "×" +
+          formatNumber(
+            item.count
+          ) +
+          "</span>" +
+
+          "</div>"
+        );
+
+      }).join("") +
+
+      "</div>" +
+
+      "<div style='margin-top:18px;color:#697486;font-size:11px'>" +
+      "Updated: " +
+      formatTime(
+        inventory.updatedAt
+      ) +
+      "</div>";
+  }
+
+  async function checkHealth() {
+
+    try {
+
+      var response =
+        await fetch(
+          "/api/health"
+        );
+
+      var data =
+        await response.json();
+
+      document.getElementById(
+        "workerStatus"
+      ).textContent =
+        data.worker === "online"
+          ? "Online"
+          : "Error";
+
+      document.getElementById(
+        "kvStatus"
+      ).textContent =
+        data.kv
+          ? "Connected"
+          : "Not connected";
+
+    } catch (error) {
+
+      document.getElementById(
+        "workerStatus"
+      ).textContent =
+        "Offline";
+
+      document.getElementById(
+        "kvStatus"
+      ).textContent =
+        "Error";
+
+    }
+  }
+
+  document.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (event.key === "Escape") {
+        closeModal();
+        closeConfig();
+      }
+
+    }
+  );
+
+  loadDashboard();
+  checkHealth();
+
+  setInterval(
+    loadDashboard,
+    30000
+  );
+
+</script>
+
+</body>
+</html>
