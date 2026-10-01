@@ -3,6 +3,14 @@
   "name": "adopt-me-bot-dashboard",
   "main": "worker.js",
   "compatibility_date": "2026-09-28",
+
+  "kv_namespaces": [
+    {
+      "binding": "BOT_KV",
+      "id": "fc43db99ba41466ab833acef2e61da2a"
+    }
+  ],
+
   "assets": {
     "directory": "./",
     "binding": "ASSETS",
