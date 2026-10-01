@@ -66,6 +66,12 @@ const MASTER_ADOPT_ME_ITEMS = [
   "Telescope Pogo"
 ];
 
+/*
+ * =========================================================
+ * ITEM NAME
+ * =========================================================
+ */
+
 function cleanItemName(rawName) {
   if (!rawName) return "Unknown";
 
@@ -89,6 +95,12 @@ function cleanItemName(rawName) {
     .join(" ");
 }
 
+/*
+ * =========================================================
+ * RESPONSE
+ * =========================================================
+ */
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -99,6 +111,12 @@ function jsonResponse(data, status = 200) {
     }
   });
 }
+
+/*
+ * =========================================================
+ * BOT HELPERS
+ * =========================================================
+ */
 
 function getUsernameFromRequest(body) {
   return String(body?.username || "").trim();
@@ -117,6 +135,12 @@ async function saveBot(env, username, bot) {
     JSON.stringify(bot)
   );
 }
+
+/*
+ * =========================================================
+ * COMMAND HELPERS
+ * =========================================================
+ */
 
 async function getCommands(env, username) {
   return (
@@ -141,6 +165,12 @@ async function saveCommands(env, username, commands) {
   );
 }
 
+/*
+ * =========================================================
+ * INVENTORY NORMALIZATION
+ * =========================================================
+ */
+
 function normalizeInventory(inventory) {
   const flatInventory = [];
 
@@ -148,32 +178,51 @@ function normalizeInventory(inventory) {
     return flatInventory;
   }
 
-  // Format:
-  // [
-  //   { id, name, type }
-  // ]
+  /*
+   * Format:
+   *
+   * [
+   *   {
+   *     id,
+   *     name,
+   *     type
+   *   }
+   * ]
+   */
+
   if (Array.isArray(inventory)) {
     for (const item of inventory) {
-      if (!item || typeof item !== "object") continue;
+      if (!item || typeof item !== "object") {
+        continue;
+      }
 
       flatInventory.push({
         id: item.id ?? "",
-        name: item.name || item.kind || "Unknown",
-        type: item.type || "Item"
+        name:
+          item.name ||
+          item.kind ||
+          "Unknown",
+        type:
+          item.type ||
+          "Item"
       });
     }
 
     return flatInventory;
   }
 
-  // Format:
-  // {
-  //   pets: {
-  //     uniqueId: {
-  //       kind: "Dog"
-  //     }
-  //   }
-  // }
+  /*
+   * Format:
+   *
+   * {
+   *   pets: {
+   *     uniqueId: {
+   *       kind: "Dog"
+   *     }
+   *   }
+   * }
+   */
+
   if (typeof inventory === "object") {
     for (const category of Object.keys(inventory)) {
       const categoryData = inventory[category];
@@ -197,11 +246,14 @@ function normalizeInventory(inventory) {
 
         flatInventory.push({
           id,
+
           name:
             itemObj.kind ||
             itemObj.name ||
             category,
-          type: String(category).toUpperCase()
+
+          type:
+            String(category).toUpperCase()
         });
       }
     }
@@ -210,14 +262,23 @@ function normalizeInventory(inventory) {
   return flatInventory;
 }
 
+/*
+ * =========================================================
+ * INVENTORY SUMMARY
+ * =========================================================
+ */
+
 function summarizeInventory(flatInventory) {
   const summary = {};
   const itemCounts = {};
 
   for (const item of flatInventory) {
-    if (!item || !item.name) continue;
+    if (!item || !item.name) {
+      continue;
+    }
 
-    const cleanedName = cleanItemName(item.name);
+    const cleanedName =
+      cleanItemName(item.name);
 
     if (!summary[cleanedName]) {
       summary[cleanedName] = {
@@ -234,16 +295,28 @@ function summarizeInventory(flatInventory) {
   }
 
   return {
-    groupedInventory: Object.values(summary),
+    groupedInventory:
+      Object.values(summary),
+
     itemCounts
   };
 }
 
+/*
+ * =========================================================
+ * CRYSTAL EGG
+ * =========================================================
+ */
+
 function calculateCrystalEggCount(itemCounts) {
   let total = 0;
 
-  for (const [name, count] of Object.entries(itemCounts)) {
-    const lower = name.toLowerCase();
+  for (
+    const [name, count]
+    of Object.entries(itemCounts)
+  ) {
+    const lower =
+      name.toLowerCase();
 
     if (
       lower.includes("crystal") &&
@@ -255,6 +328,24 @@ function calculateCrystalEggCount(itemCounts) {
 
   return total;
 }
+
+/*
+ * =========================================================
+ * TELEMETRY
+ * =========================================================
+ *
+ * Bot:
+ *
+ * POST /api/telemetry
+ *
+ * Worker:
+ * 1. Simpan status
+ * 2. Simpan inventory
+ * 3. Ambil 1 command
+ * 4. Kirim command melalui response
+ *
+ * =========================================================
+ */
 
 async function handleTelemetry(request, env) {
   if (!env.BOT_KV) {
@@ -297,7 +388,8 @@ async function handleTelemetry(request, env) {
     );
   }
 
-  const username = getUsernameFromRequest(body);
+  const username =
+    getUsernameFromRequest(body);
 
   if (!username) {
     return jsonResponse(
@@ -315,9 +407,9 @@ async function handleTelemetry(request, env) {
     (await getBot(env, username)) || {};
 
   /*
-   * =========================================================
+   * =======================================================
    * INVENTORY
-   * =========================================================
+   * =======================================================
    */
 
   const flatInventory =
@@ -326,21 +418,16 @@ async function handleTelemetry(request, env) {
   const {
     groupedInventory,
     itemCounts
-  } = summarizeInventory(flatInventory);
+  } =
+    summarizeInventory(flatInventory);
 
   const crystalEggCount =
     calculateCrystalEggCount(itemCounts);
 
   /*
-   * =========================================================
-   * SIMPAN DATA BOT
-   * =========================================================
-   *
-   * Kita sengaja menyimpan groupedInventory + itemCounts
-   * langsung di BOT:<username>.
-   *
-   * Tujuannya:
-   * Dashboard / Tas tidak perlu request inventory kedua.
+   * =======================================================
+   * SAVE BOT
+   * =======================================================
    */
 
   const bot = {
@@ -349,10 +436,13 @@ async function handleTelemetry(request, env) {
     username,
 
     rf_location:
-      body.rf_location || "Unknown",
+      body.rf_location ||
+      previousBot.rf_location ||
+      "Unknown",
 
     status:
-      body.status || "ONLINE",
+      body.status ||
+      "ONLINE",
 
     bucks:
       Number(body.bucks) || 0,
@@ -372,12 +462,14 @@ async function handleTelemetry(request, env) {
     inventoryCount:
       flatInventory.length,
 
-    inventoryUpdatedAt: now,
+    inventoryUpdatedAt:
+      now,
 
     autotrade_status:
       Boolean(body.autotrade_status),
 
-    lastHeartbeat: now
+    lastHeartbeat:
+      now
   };
 
   await saveBot(
@@ -387,25 +479,26 @@ async function handleTelemetry(request, env) {
   );
 
   /*
-   * =========================================================
+   * =======================================================
    * COMMAND
-   * =========================================================
+   * =======================================================
    *
-   * Persis seperti server lama:
+   * Ambil hanya 1 command.
    *
-   * telemetry masuk
-   * -> server simpan inventory
-   * -> ambil 1 command
-   * -> command dikirim melalui response telemetry
+   * Ini menjaga sistem command tetap sederhana.
    */
 
   const commands =
-    await getCommands(env, username);
+    await getCommands(
+      env,
+      username
+    );
 
   let command = null;
 
   if (commands.length > 0) {
-    command = commands.shift();
+    command =
+      commands.shift();
 
     await saveCommands(
       env,
@@ -420,6 +513,12 @@ async function handleTelemetry(request, env) {
   });
 }
 
+/*
+ * =========================================================
+ * MANUAL REFRESH 1 BOT
+ * =========================================================
+ */
+
 async function handleInventoryCommand(
   request,
   env
@@ -428,14 +527,17 @@ async function handleInventoryCommand(
     return jsonResponse(
       {
         success: false,
-        error: "BOT_KV binding belum tersedia"
+        error:
+          "BOT_KV binding belum tersedia"
       },
       500
     );
   }
 
   const authorization =
-    request.headers.get("Authorization");
+    request.headers.get(
+      "Authorization"
+    );
 
   if (
     !env.BOT_TOKEN ||
@@ -473,42 +575,50 @@ async function handleInventoryCommand(
     return jsonResponse(
       {
         success: false,
-        error: "Missing bot_username"
+        error:
+          "Missing bot_username"
       },
       400
     );
   }
 
   const bot =
-    await getBot(env, username);
+    await getBot(
+      env,
+      username
+    );
 
   if (!bot) {
     return jsonResponse(
       {
         success: false,
-        error: "Bot tidak ditemukan"
+        error:
+          "Bot tidak ditemukan"
       },
       404
     );
   }
 
   const commands =
-    await getCommands(env, username);
+    await getCommands(
+      env,
+      username
+    );
 
-  /*
-   * Jangan menumpuk REQUEST_INVENTORY berkali-kali
-   * kalau user menekan refresh beberapa kali.
-   */
   const alreadyQueued =
     commands.some(
       command =>
-        command?.type === "REQUEST_INVENTORY"
+        command?.type ===
+        "REQUEST_INVENTORY"
     );
 
   if (!alreadyQueued) {
     commands.push({
-      type: "REQUEST_INVENTORY",
-      createdAt: Date.now()
+      type:
+        "REQUEST_INVENTORY",
+
+      createdAt:
+        Date.now()
     });
 
     await saveCommands(
@@ -520,36 +630,227 @@ async function handleInventoryCommand(
 
   return jsonResponse({
     success: true,
-    queued: !alreadyQueued,
-    message: alreadyQueued
-      ? "Refresh inventory sudah berada dalam antrean"
-      : "REQUEST_INVENTORY berhasil diantrikan"
+
+    queued:
+      !alreadyQueued,
+
+    username,
+
+    message:
+      alreadyQueued
+        ? "Refresh inventory sudah berada dalam antrean"
+        : "REQUEST_INVENTORY berhasil diantrikan"
   });
 }
 
-async function handleCommandPoll(
+/*
+ * =========================================================
+ * MANUAL REFRESH SEMUA BOT
+ * =========================================================
+ *
+ * ENDPOINT BARU
+ *
+ * POST /api/command/inventory/all
+ *
+ * Dashboard cukup melakukan SATU request.
+ *
+ * Worker:
+ * - mencari semua BOT:
+ * - membuat REQUEST_INVENTORY
+ * - tidak membuat duplikat
+ *
+ * =========================================================
+ */
+
+async function handleInventoryCommandAll(
   request,
   env
 ) {
-  /*
-   * Endpoint ini hanya untuk kompatibilitas.
-   *
-   * Mekanisme utama TIDAK menggunakan polling.
-   * Command normalnya dikirim melalui response /api/telemetry.
-   */
-
   if (!env.BOT_KV) {
     return jsonResponse(
       {
         success: false,
-        error: "BOT_KV binding belum tersedia"
+        error:
+          "BOT_KV binding belum tersedia"
       },
       500
     );
   }
 
   const authorization =
-    request.headers.get("Authorization");
+    request.headers.get(
+      "Authorization"
+    );
+
+  if (
+    !env.BOT_TOKEN ||
+    authorization !== env.BOT_TOKEN
+  ) {
+    return jsonResponse(
+      {
+        success: false,
+        error: "Unauthorized"
+      },
+      401
+    );
+  }
+
+  /*
+   * Ambil semua BOT.
+   *
+   * KV list default memiliki pagination.
+   * Kita lanjutkan sampai semua key terbaca.
+   */
+
+  const botKeys = [];
+
+  let cursor = undefined;
+
+  do {
+    const result =
+      await env.BOT_KV.list({
+        prefix:
+          BOT_PREFIX,
+
+        ...(cursor
+          ? { cursor }
+          : {})
+      });
+
+    for (const key of result.keys) {
+      botKeys.push(key.name);
+    }
+
+    cursor =
+      result.list_complete
+        ? undefined
+        : result.cursor;
+
+  } while (cursor);
+
+  let botCount = 0;
+  let queuedCount = 0;
+  let alreadyQueuedCount = 0;
+  let skippedCount = 0;
+
+  /*
+   * =======================================================
+   * QUEUE COMMAND KE SEMUA BOT
+   * =======================================================
+   */
+
+  for (const key of botKeys) {
+    const username =
+      key.substring(
+        BOT_PREFIX.length
+      );
+
+    if (!username) {
+      skippedCount++;
+      continue;
+    }
+
+    const bot =
+      await getBot(
+        env,
+        username
+      );
+
+    if (!bot) {
+      skippedCount++;
+      continue;
+    }
+
+    botCount++;
+
+    const commands =
+      await getCommands(
+        env,
+        username
+      );
+
+    const alreadyQueued =
+      commands.some(
+        command =>
+          command?.type ===
+          "REQUEST_INVENTORY"
+      );
+
+    if (alreadyQueued) {
+      alreadyQueuedCount++;
+      continue;
+    }
+
+    commands.push({
+      type:
+        "REQUEST_INVENTORY",
+
+      createdAt:
+        Date.now()
+    });
+
+    await saveCommands(
+      env,
+      username,
+      commands
+    );
+
+    queuedCount++;
+  }
+
+  return jsonResponse({
+    success: true,
+
+    message:
+      "REQUEST_INVENTORY berhasil diproses untuk semua bot",
+
+    totalBots:
+      botCount,
+
+    queued:
+      queuedCount,
+
+    alreadyQueued:
+      alreadyQueuedCount,
+
+    skipped:
+      skippedCount,
+
+    createdAt:
+      Date.now()
+  });
+}
+
+/*
+ * =========================================================
+ * COMMAND POLL
+ * =========================================================
+ *
+ * Kompatibilitas dengan sistem lama.
+ * Mekanisme utama tetap telemetry-response-command.
+ *
+ * =========================================================
+ */
+
+async function handleCommandPoll(
+  request,
+  env
+) {
+  if (!env.BOT_KV) {
+    return jsonResponse(
+      {
+        success: false,
+        error:
+          "BOT_KV binding belum tersedia"
+      },
+      500
+    );
+  }
+
+  const authorization =
+    request.headers.get(
+      "Authorization"
+    );
 
   if (
     !env.BOT_TOKEN ||
@@ -569,26 +870,33 @@ async function handleCommandPoll(
 
   const username =
     String(
-      url.searchParams.get("username") || ""
+      url.searchParams.get(
+        "username"
+      ) || ""
     ).trim();
 
   if (!username) {
     return jsonResponse(
       {
         success: false,
-        error: "Missing username"
+        error:
+          "Missing username"
       },
       400
     );
   }
 
   const commands =
-    await getCommands(env, username);
+    await getCommands(
+      env,
+      username
+    );
 
   let command = null;
 
   if (commands.length > 0) {
-    command = commands.shift();
+    command =
+      commands.shift();
 
     await saveCommands(
       env,
@@ -603,6 +911,12 @@ async function handleCommandPoll(
   });
 }
 
+/*
+ * =========================================================
+ * DASHBOARD DATA
+ * =========================================================
+ */
+
 async function handleDashboardData(
   env
 ) {
@@ -610,171 +924,246 @@ async function handleDashboardData(
     return jsonResponse(
       {
         success: false,
-        error: "BOT_KV binding belum tersedia"
+        error:
+          "BOT_KV binding belum tersedia"
       },
       500
     );
   }
 
-  const list =
-    await env.BOT_KV.list({
-      prefix: BOT_PREFIX
-    });
+  const botsList =
+    [];
 
-  const botsList = [];
+  const now =
+    Date.now();
 
-  const now = Date.now();
+  let onlineCount =
+    0;
 
-  let onlineCount = 0;
-  let offlineCount = 0;
+  let offlineCount =
+    0;
+
+  const itemTotals =
+    {};
 
   /*
-   * Total item generic.
-   *
-   * Contoh:
-   * {
-   *   "Crystal Egg": 25,
-   *   "Alicorn": 4,
-   *   "Dog": 18
-   * }
+   * =======================================================
+   * KV PAGINATION
+   * =======================================================
    */
-  const itemTotals = {};
 
-  for (const key of list.keys) {
-    const username =
-      key.name.substring(
-        BOT_PREFIX.length
-      );
+  let cursor =
+    undefined;
 
-    const bot =
-      await getBot(env, username);
+  do {
+    const list =
+      await env.BOT_KV.list({
+        prefix:
+          BOT_PREFIX,
 
-    if (!bot) continue;
+        ...(cursor
+          ? { cursor }
+          : {})
+      });
 
-    const timeDiff =
-      now - Number(
-        bot.lastHeartbeat || 0
-      );
+    for (const key of list.keys) {
+      const username =
+        key.name.substring(
+          BOT_PREFIX.length
+        );
 
-    /*
-     * Sama seperti server lama:
-     * lebih dari 24 jam -> hapus
-     */
-    if (timeDiff > DELETE_THRESHOLD) {
-      await env.BOT_KV.delete(
-        `${BOT_PREFIX}${username}`
-      );
-
-      await env.BOT_KV.delete(
-        `${COMMAND_PREFIX}${username}`
-      );
-
-      continue;
-    }
-
-    /*
-     * Sama seperti server lama:
-     * lebih dari 3 menit -> OFFLINE
-     */
-    const currentStatus =
-      timeDiff > OFFLINE_THRESHOLD
-        ? "OFFLINE"
-        : (
-            bot.status || "OFFLINE"
-          );
-
-    if (currentStatus === "ONLINE") {
-      onlineCount++;
-    } else {
-      offlineCount++;
-    }
-
-    /*
-     * Hitung total semua item.
-     */
-    if (
-      bot.itemCounts &&
-      typeof bot.itemCounts === "object"
-    ) {
-      for (
-        const [
-          itemName,
-          count
-        ] of Object.entries(
-          bot.itemCounts
-        )
-      ) {
-        itemTotals[itemName] =
-          (
-            itemTotals[itemName] || 0
-          ) + (
-            Number(count) || 0
-          );
+      if (!username) {
+        continue;
       }
+
+      const bot =
+        await getBot(
+          env,
+          username
+        );
+
+      if (!bot) {
+        continue;
+      }
+
+      const timeDiff =
+        now -
+        Number(
+          bot.lastHeartbeat || 0
+        );
+
+      /*
+       * ===================================================
+       * DELETE BOT > 24 JAM
+       * ===================================================
+       */
+
+      if (
+        timeDiff >
+        DELETE_THRESHOLD
+      ) {
+        await env.BOT_KV.delete(
+          `${BOT_PREFIX}${username}`
+        );
+
+        await env.BOT_KV.delete(
+          `${COMMAND_PREFIX}${username}`
+        );
+
+        continue;
+      }
+
+      /*
+       * ===================================================
+       * ONLINE / OFFLINE
+       * ===================================================
+       */
+
+      const currentStatus =
+        timeDiff >
+        OFFLINE_THRESHOLD
+          ? "OFFLINE"
+          : (
+              bot.status ||
+              "OFFLINE"
+            );
+
+      if (
+        currentStatus ===
+        "ONLINE"
+      ) {
+        onlineCount++;
+      } else {
+        offlineCount++;
+      }
+
+      /*
+       * ===================================================
+       * TOTAL ITEM
+       * ===================================================
+       */
+
+      if (
+        bot.itemCounts &&
+        typeof bot.itemCounts ===
+          "object"
+      ) {
+        for (
+          const [
+            itemName,
+            count
+          ] of Object.entries(
+            bot.itemCounts
+          )
+        ) {
+          itemTotals[itemName] =
+            (
+              itemTotals[itemName] ||
+              0
+            ) +
+            (
+              Number(count) ||
+              0
+            );
+        }
+      }
+
+      /*
+       * ===================================================
+       * DATA BOT
+       * ===================================================
+       */
+
+      botsList.push({
+        username,
+
+        rf_location:
+          bot.rf_location ||
+          "Unknown",
+
+        status:
+          currentStatus,
+
+        bucks:
+          Number(
+            bot.bucks
+          ) || 0,
+
+        eggCount:
+          Number(
+            bot.eggCount
+          ) || 0,
+
+        petCount:
+          Number(
+            bot.petCount
+          ) || 0,
+
+        crystalEggCount:
+          Number(
+            bot.crystalEggCount
+          ) || 0,
+
+        groupedInventory:
+          bot.groupedInventory ||
+          [],
+
+        itemCounts:
+          bot.itemCounts ||
+          {},
+
+        inventoryCount:
+          Number(
+            bot.inventoryCount
+          ) || 0,
+
+        inventoryUpdatedAt:
+          bot.inventoryUpdatedAt ||
+          null,
+
+        autotrade_status:
+          Boolean(
+            bot.autotrade_status
+          ),
+
+        lastHeartbeat:
+          bot.lastHeartbeat ||
+          null,
+
+        lastUpdatedFormatted:
+          bot.lastHeartbeat
+            ? new Date(
+                bot.lastHeartbeat
+              ).toLocaleTimeString(
+                "id-ID",
+                {
+                  hour:
+                    "2-digit",
+
+                  minute:
+                    "2-digit",
+
+                  second:
+                    "2-digit"
+                }
+              )
+            : "-"
+      });
     }
 
-    /*
-     * Jangan kirim inventory mentah.
-     * Dashboard cukup menerima groupedInventory.
-     */
-    botsList.push({
-      username,
+    cursor =
+      list.list_complete
+        ? undefined
+        : list.cursor;
 
-      rf_location:
-        bot.rf_location || "Unknown",
-
-      status: currentStatus,
-
-      bucks:
-        Number(bot.bucks) || 0,
-
-      eggCount:
-        Number(bot.eggCount) || 0,
-
-      petCount:
-        Number(bot.petCount) || 0,
-
-      crystalEggCount:
-        Number(bot.crystalEggCount) || 0,
-
-      groupedInventory:
-        bot.groupedInventory || [],
-
-      itemCounts:
-        bot.itemCounts || {},
-
-      inventoryCount:
-        Number(bot.inventoryCount) || 0,
-
-      inventoryUpdatedAt:
-        bot.inventoryUpdatedAt || null,
-
-      autotrade_status:
-        Boolean(bot.autotrade_status),
-
-      lastHeartbeat:
-        bot.lastHeartbeat || null,
-
-      lastUpdatedFormatted:
-        bot.lastHeartbeat
-          ? new Date(
-              bot.lastHeartbeat
-            ).toLocaleTimeString(
-              "id-ID",
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-              }
-            )
-          : "-"
-    });
-  }
+  } while (cursor);
 
   /*
-   * Urutkan berdasarkan RF Location,
-   * kemudian username.
+   * =======================================================
+   * SORT
+   * =======================================================
    */
+
   botsList.sort((a, b) => {
     const rfA =
       String(
@@ -787,9 +1176,13 @@ async function handleDashboardData(
       ).trim();
 
     const compareRF =
-      rfA.localeCompare(rfB);
+      rfA.localeCompare(
+        rfB
+      );
 
-    if (compareRF !== 0) {
+    if (
+      compareRF !== 0
+    ) {
       return compareRF;
     }
 
@@ -798,15 +1191,29 @@ async function handleDashboardData(
     );
   });
 
+  /*
+   * =======================================================
+   * TOTAL BUCKS
+   * =======================================================
+   */
+
   const totalBucks =
     botsList.reduce(
       (total, bot) =>
         total +
         (
-          Number(bot.bucks) || 0
+          Number(
+            bot.bucks
+          ) || 0
         ),
       0
     );
+
+  /*
+   * =======================================================
+   * TOTAL CRYSTAL EGG
+   * =======================================================
+   */
 
   const totalCrystalEggs =
     botsList.reduce(
@@ -823,7 +1230,8 @@ async function handleDashboardData(
   return jsonResponse({
     success: true,
 
-    bots: botsList,
+    bots:
+      botsList,
 
     totalBucks,
 
@@ -838,26 +1246,39 @@ async function handleDashboardData(
     offlineBots:
       offlineCount,
 
-    /*
-     * Generic.
-     * Dashboard nantinya bisa mengambil item apapun.
-     */
     itemTotals
   });
 }
+
+/*
+ * =========================================================
+ * INVENTORY DETAIL
+ * =========================================================
+ *
+ * Endpoint ini tetap tersedia untuk kompatibilitas.
+ *
+ * Dashboard baru TIDAK perlu memanggilnya ketika membuka
+ * inventory karena groupedInventory sudah ada di dashboard data.
+ *
+ * =========================================================
+ */
 
 async function handleInventoryDetail(
   env,
   username
 ) {
   const bot =
-    await getBot(env, username);
+    await getBot(
+      env,
+      username
+    );
 
   if (!bot) {
     return jsonResponse(
       {
         success: false,
-        error: "Bot tidak ditemukan"
+        error:
+          "Bot tidak ditemukan"
       },
       404
     );
@@ -869,18 +1290,28 @@ async function handleInventoryDetail(
     username,
 
     groupedInventory:
-      bot.groupedInventory || [],
+      bot.groupedInventory ||
+      [],
 
     itemCounts:
-      bot.itemCounts || {},
+      bot.itemCounts ||
+      {},
 
     inventoryCount:
-      bot.inventoryCount || 0,
+      bot.inventoryCount ||
+      0,
 
     inventoryUpdatedAt:
-      bot.inventoryUpdatedAt || null
+      bot.inventoryUpdatedAt ||
+      null
   });
 }
+
+/*
+ * =========================================================
+ * HEALTH
+ * =========================================================
+ */
 
 async function handleHealth(env) {
   return jsonResponse({
@@ -890,10 +1321,14 @@ async function handleHealth(env) {
       "online",
 
     kv:
-      Boolean(env.BOT_KV),
+      Boolean(
+        env.BOT_KV
+      ),
 
     botTokenConfigured:
-      Boolean(env.BOT_TOKEN),
+      Boolean(
+        env.BOT_TOKEN
+      ),
 
     mode:
       "monitor-only",
@@ -906,10 +1341,18 @@ async function handleHealth(env) {
   });
 }
 
+/*
+ * =========================================================
+ * WORKER
+ * =========================================================
+ */
+
 export default {
   async fetch(request, env) {
     const url =
-      new URL(request.url);
+      new URL(
+        request.url
+      );
 
     const path =
       url.pathname;
@@ -920,17 +1363,27 @@ export default {
      * =====================================================
      */
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods":
-            "GET,POST,OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Content-Type, Authorization"
+    if (
+      request.method ===
+      "OPTIONS"
+    ) {
+      return new Response(
+        null,
+        {
+          status: 204,
+
+          headers: {
+            "Access-Control-Allow-Origin":
+              "*",
+
+            "Access-Control-Allow-Methods":
+              "GET,POST,OPTIONS",
+
+            "Access-Control-Allow-Headers":
+              "Content-Type, Authorization"
+          }
         }
-      });
+      );
     }
 
     try {
@@ -941,10 +1394,14 @@ export default {
        */
 
       if (
-        path === "/api/health" &&
-        request.method === "GET"
+        path ===
+          "/api/health" &&
+        request.method ===
+          "GET"
       ) {
-        return await handleHealth(env);
+        return await handleHealth(
+          env
+        );
       }
 
       /*
@@ -954,8 +1411,10 @@ export default {
        */
 
       if (
-        path === "/api/telemetry" &&
-        request.method === "POST"
+        path ===
+          "/api/telemetry" &&
+        request.method ===
+          "POST"
       ) {
         return await handleTelemetry(
           request,
@@ -965,13 +1424,15 @@ export default {
 
       /*
        * ===================================================
-       * MANUAL REFRESH INVENTORY
+       * MANUAL REFRESH 1 BOT
        * ===================================================
        */
 
       if (
-        path === "/api/command/inventory" &&
-        request.method === "POST"
+        path ===
+          "/api/command/inventory" &&
+        request.method ===
+          "POST"
       ) {
         return await handleInventoryCommand(
           request,
@@ -981,13 +1442,41 @@ export default {
 
       /*
        * ===================================================
-       * COMPATIBILITY COMMAND POLL
+       * MANUAL REFRESH SEMUA BOT
+       * ===================================================
+       *
+       * INI ENDPOINT BARU.
+       *
+       * Dashboard:
+       *
+       * POST /api/command/inventory/all
+       *
        * ===================================================
        */
 
       if (
-        path === "/api/command/poll" &&
-        request.method === "GET"
+        path ===
+          "/api/command/inventory/all" &&
+        request.method ===
+          "POST"
+      ) {
+        return await handleInventoryCommandAll(
+          request,
+          env
+        );
+      }
+
+      /*
+       * ===================================================
+       * COMMAND POLL
+       * ===================================================
+       */
+
+      if (
+        path ===
+          "/api/command/poll" &&
+        request.method ===
+          "GET"
       ) {
         return await handleCommandPoll(
           request,
@@ -1002,8 +1491,10 @@ export default {
        */
 
       if (
-        path === "/api/dashboard/data" &&
-        request.method === "GET"
+        path ===
+          "/api/dashboard/data" &&
+        request.method ===
+          "GET"
       ) {
         return await handleDashboardData(
           env
@@ -1020,7 +1511,8 @@ export default {
         path.startsWith(
           "/api/inventory/"
         ) &&
-        request.method === "GET"
+        request.method ===
+          "GET"
       ) {
         const username =
           decodeURIComponent(
@@ -1042,11 +1534,14 @@ export default {
        */
 
       if (
-        path === "/api/master-items" &&
-        request.method === "GET"
+        path ===
+          "/api/master-items" &&
+        request.method ===
+          "GET"
       ) {
         return jsonResponse({
           success: true,
+
           items:
             MASTER_ADOPT_ME_ITEMS
         });
@@ -1054,18 +1549,25 @@ export default {
 
       /*
        * ===================================================
-       * ROOT / ASSETS
+       * ASSETS
        * ===================================================
        */
 
       if (
-        request.method === "GET" &&
+        request.method ===
+          "GET" &&
         env.ASSETS
       ) {
         return await env.ASSETS.fetch(
           request
         );
       }
+
+      /*
+       * ===================================================
+       * NOT FOUND
+       * ===================================================
+       */
 
       return jsonResponse(
         {
@@ -1084,6 +1586,7 @@ export default {
       return jsonResponse(
         {
           success: false,
+
           error:
             error?.message ||
             "Internal Server Error"
