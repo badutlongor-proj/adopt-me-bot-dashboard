@@ -419,8 +419,8 @@ async function handleTelemetry(
             ),
 
         crystalEggCount:
-            calculateCrystalEggCount(
-                inventory
+            Number(
+                body?.crystalEggCount || 0
             ),
 
         groupedInventory:
