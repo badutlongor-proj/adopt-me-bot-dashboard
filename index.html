@@ -2,14 +2,21 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
 
+  <meta
+    name="theme-color"
+    content="#0b0d12"
+  >
+
   <title>Adopt Me Control Center</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -27,10 +34,17 @@
       --blue: #5b8cff;
     }
 
+    html,
     body {
       margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
       background: var(--bg);
       color: var(--text);
+
       font-family:
         Inter,
         system-ui,
@@ -46,37 +60,64 @@
       font: inherit;
     }
 
+    button {
+      user-select: none;
+    }
+
     .app {
       display: flex;
       min-height: 100vh;
     }
 
+    /* =========================
+       SIDEBAR
+       ========================= */
+
     .sidebar {
       width: 240px;
-      border-right: 1px solid var(--border);
+
+      border-right:
+        1px solid var(--border);
+
       background: #0e1016;
+
       padding: 22px 14px;
+
       position: fixed;
+
       left: 0;
       top: 0;
       bottom: 0;
+
+      z-index: 20;
     }
 
     .logo {
       display: flex;
+
       align-items: center;
+
       gap: 12px;
-      padding: 8px 10px 25px;
+
+      padding:
+        8px
+        10px
+        25px;
     }
 
     .logo-icon {
       width: 38px;
       height: 38px;
+
       border-radius: 11px;
+
       display: grid;
       place-items: center;
+
       background: var(--blue);
+
       color: white;
+
       font-weight: 800;
     }
 
@@ -87,29 +128,53 @@
 
     .logo-subtitle {
       font-size: 11px;
+
       color: var(--muted);
+
       margin-top: 2px;
     }
 
     .nav-title {
       color: #626c7d;
+
       font-size: 10px;
+
       font-weight: 700;
-      padding: 15px 12px 7px;
+
+      padding:
+        15px
+        12px
+        7px;
+
       text-transform: uppercase;
+
       letter-spacing: 1px;
     }
 
     .nav-item {
       width: 100%;
+
       border: 0;
+
       background: transparent;
+
       color: var(--muted);
+
       text-align: left;
-      padding: 11px 12px;
+
+      padding:
+        11px
+        12px;
+
       border-radius: 9px;
+
       margin-bottom: 3px;
+
       cursor: pointer;
+
+      transition:
+        background .15s,
+        color .15s;
     }
 
     .nav-item:hover {
@@ -122,44 +187,73 @@
       color: white;
     }
 
+    /* =========================
+       MAIN
+       ========================= */
+
     .main {
       margin-left: 240px;
-      width: calc(100% - 240px);
+
+      width:
+        calc(100% - 240px);
+
       padding: 25px;
     }
 
     .topbar {
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
+
       gap: 15px;
+
       margin-bottom: 25px;
     }
 
     .page-title {
       font-size: 25px;
+
       font-weight: 800;
+
       margin: 0;
     }
 
     .page-subtitle {
       color: var(--muted);
+
       font-size: 13px;
+
       margin-top: 5px;
     }
 
     .top-actions {
       display: flex;
+
       gap: 10px;
     }
 
+    /* =========================
+       BUTTONS
+       ========================= */
+
     .btn {
-      border: 1px solid var(--border);
+      border:
+        1px solid var(--border);
+
       background: var(--panel);
+
       color: white;
-      padding: 10px 15px;
+
+      padding:
+        10px
+        15px;
+
       border-radius: 9px;
+
       cursor: pointer;
+
       transition: .15s;
     }
 
@@ -167,8 +261,14 @@
       background: #1b2029;
     }
 
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       border-color: transparent;
+
       background: var(--blue);
     }
 
@@ -176,71 +276,114 @@
       background: #709bff;
     }
 
+    /* =========================
+       STATS
+       ========================= */
+
     .stats {
       display: grid;
+
       grid-template-columns:
         repeat(4, minmax(0, 1fr));
+
       gap: 15px;
+
       margin-bottom: 20px;
     }
 
     .stat {
       background: var(--panel);
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       border-radius: 13px;
+
       padding: 18px;
     }
 
     .stat-label {
       color: var(--muted);
+
       font-size: 12px;
     }
 
     .stat-value {
       margin-top: 9px;
+
       font-size: 25px;
+
       font-weight: 800;
     }
 
     .stat-small {
       margin-top: 5px;
+
       color: var(--muted);
+
       font-size: 11px;
     }
 
+    /* =========================
+       PANEL
+       ========================= */
+
     .panel {
       background: var(--panel);
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       border-radius: 13px;
+
       overflow: hidden;
     }
 
     .panel-header {
-      padding: 17px 18px;
+      padding:
+        17px
+        18px;
+
       display: flex;
+
       justify-content: space-between;
+
       align-items: center;
+
       gap: 15px;
-      border-bottom: 1px solid var(--border);
+
+      border-bottom:
+        1px solid var(--border);
     }
 
     .panel-title {
       font-size: 15px;
+
       font-weight: 750;
     }
 
     .tools {
       display: flex;
+
       gap: 8px;
     }
 
     .search {
       width: 220px;
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       background: #0e1117;
+
       color: white;
-      padding: 9px 11px;
+
+      padding:
+        9px
+        11px;
+
       border-radius: 8px;
+
       outline: none;
     }
 
@@ -248,29 +391,48 @@
       border-color: var(--blue);
     }
 
+    /* =========================
+       TABLE
+       ========================= */
+
     .table-wrapper {
       overflow-x: auto;
     }
 
     table {
       width: 100%;
+
       border-collapse: collapse;
+
       min-width: 850px;
     }
 
     th {
       color: #697486;
+
       font-size: 10px;
+
       text-transform: uppercase;
+
       letter-spacing: .7px;
+
       text-align: left;
-      padding: 12px 16px;
+
+      padding:
+        12px
+        16px;
+
       background: #10131a;
     }
 
     td {
-      padding: 14px 16px;
-      border-top: 1px solid var(--border);
+      padding:
+        14px
+        16px;
+
+      border-top:
+        1px solid var(--border);
+
       font-size: 13px;
     }
 
@@ -286,66 +448,138 @@
       color: var(--muted);
     }
 
+    /* =========================
+       STATUS
+       ========================= */
+
     .status {
       display: inline-flex;
+
       align-items: center;
+
       gap: 7px;
-      padding: 5px 9px;
+
+      padding:
+        5px
+        9px;
+
       border-radius: 99px;
+
       font-size: 11px;
+
       font-weight: 700;
     }
 
     .status.online {
       color: var(--green);
-      background: rgba(66, 211, 146, .08);
+
+      background:
+        rgba(
+          66,
+          211,
+          146,
+          .08
+        );
     }
 
     .status.offline {
       color: var(--red);
-      background: rgba(255, 93, 108, .08);
+
+      background:
+        rgba(
+          255,
+          93,
+          108,
+          .08
+        );
     }
 
     .dot {
       width: 6px;
       height: 6px;
+
       border-radius: 50%;
+
       background: currentColor;
     }
 
+    /* =========================
+       ACTION BUTTONS
+       ========================= */
+
     .actions {
       display: flex;
+
       gap: 6px;
     }
 
     .icon-btn {
       width: 34px;
       height: 32px;
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       background: #11151b;
+
       color: white;
+
       border-radius: 7px;
+
       cursor: pointer;
+
+      transition: .15s;
     }
 
     .icon-btn:hover {
       background: #202630;
     }
 
+    .icon-btn:disabled {
+      opacity: .5;
+
+      cursor: not-allowed;
+    }
+
+    /* =========================
+       EMPTY
+       ========================= */
+
     .empty {
       text-align: center;
-      padding: 50px 20px;
+
+      padding:
+        50px
+        20px;
+
       color: var(--muted);
     }
 
+    /* =========================
+       MODAL
+       ========================= */
+
     .modal-backdrop {
       position: fixed;
+
       inset: 0;
-      background: rgba(0, 0, 0, .65);
+
+      background:
+        rgba(
+          0,
+          0,
+          0,
+          .65
+        );
+
       display: none;
+
       align-items: center;
+
       justify-content: center;
+
       z-index: 100;
+
       padding: 20px;
     }
 
@@ -354,21 +588,46 @@
     }
 
     .modal {
-      width: min(700px, 100%);
+      width:
+        min(
+          700px,
+          100%
+        );
+
       max-height: 85vh;
+
       overflow: hidden;
+
       background: #11141b;
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       border-radius: 15px;
-      box-shadow: 0 25px 80px rgba(0,0,0,.5);
+
+      box-shadow:
+        0
+        25px
+        80px
+        rgba(
+          0,
+          0,
+          0,
+          .5
+        );
     }
 
     .modal-header {
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
+
       padding: 18px;
-      border-bottom: 1px solid var(--border);
+
+      border-bottom:
+        1px solid var(--border);
     }
 
     .modal-title {
@@ -377,33 +636,152 @@
 
     .close {
       border: 0;
+
       background: transparent;
+
       color: var(--muted);
+
       font-size: 22px;
+
       cursor: pointer;
+    }
+
+    .close:hover {
+      color: white;
     }
 
     .modal-body {
       padding: 18px;
+
       overflow-y: auto;
-      max-height: calc(85vh - 70px);
+
+      max-height:
+        calc(
+          85vh - 70px
+        );
+    }
+
+    /* =========================
+       INVENTORY
+       ========================= */
+
+    .inventory-summary {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          3,
+          minmax(
+            0,
+            1fr
+          )
+        );
+
+      gap: 10px;
+
+      margin-bottom: 12px;
+    }
+
+    .inventory-stat {
+      background: var(--panel2);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 10px;
+
+      padding: 14px;
+
+      text-align: center;
+    }
+
+    .inventory-stat-value {
+      font-size: 20px;
+
+      font-weight: 800;
+    }
+
+    .inventory-stat-label {
+      color: var(--muted);
+
+      font-size: 11px;
+
+      margin-top: 4px;
+    }
+
+    .inventory-updated {
+      color: var(--muted);
+
+      font-size: 11px;
+
+      margin:
+        0
+        0
+        14px;
     }
 
     .inventory-grid {
       display: grid;
+
       grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+        repeat(
+          2,
+          minmax(
+            0,
+            1fr
+          )
+        );
+
       gap: 8px;
     }
 
     .inventory-item {
       display: flex;
+
       justify-content: space-between;
+
+      align-items: center;
+
       gap: 15px;
-      padding: 11px 13px;
+
+      padding:
+        11px
+        13px;
+
       background: var(--panel2);
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       border-radius: 8px;
+    }
+
+    .inventory-item-info {
+      min-width: 0;
+    }
+
+    .inventory-item-name {
+      font-size: 12px;
+
+      font-weight: 650;
+
+      word-break: break-word;
+    }
+
+    .inventory-item-type {
+      color: var(--muted);
+
+      font-size: 10px;
+
+      margin-top: 3px;
+    }
+
+    .inventory-item-count {
+      flex-shrink: 0;
+
+      font-weight: 800;
+
+      color: var(--blue);
     }
 
     .inventory-name {
@@ -412,23 +790,45 @@
 
     .inventory-count {
       font-weight: 800;
+
       color: var(--blue);
     }
 
+    /* =========================
+       LOADING
+       ========================= */
+
     .loading {
       text-align: center;
+
       padding: 35px;
+
       color: var(--muted);
     }
 
     .spinner {
       width: 28px;
       height: 28px;
-      border: 3px solid #303744;
-      border-top-color: var(--blue);
+
+      border:
+        3px solid
+        #303744;
+
+      border-top-color:
+        var(--blue);
+
       border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 0 auto 12px;
+
+      animation:
+        spin
+        .8s
+        linear
+        infinite;
+
+      margin:
+        0
+        auto
+        12px;
     }
 
     @keyframes spin {
@@ -437,36 +837,84 @@
       }
     }
 
+    /* =========================
+       TOAST
+       ========================= */
+
     .toast-container {
       position: fixed;
+
       right: 20px;
+
       bottom: 20px;
+
       z-index: 500;
+
       display: flex;
+
       flex-direction: column;
+
       gap: 8px;
     }
 
     .toast {
       background: #181c24;
-      border: 1px solid var(--border);
-      padding: 12px 15px;
+
+      border:
+        1px solid var(--border);
+
+      padding:
+        12px
+        15px;
+
       border-radius: 9px;
+
       font-size: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.3);
-      animation: toastIn .2s ease;
+
+      box-shadow:
+        0
+        10px
+        30px
+        rgba(
+          0,
+          0,
+          0,
+          .3
+        );
+
+      animation:
+        toastIn
+        .2s
+        ease;
+
+      max-width: 360px;
     }
 
     @keyframes toastIn {
+
       from {
         opacity: 0;
-        transform: translateY(8px);
+
+        transform:
+          translateY(
+            8px
+          );
       }
+
       to {
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+          translateY(
+            0
+          );
       }
+
     }
+
+    /* =========================
+       CONFIG
+       ========================= */
 
     .config-row {
       margin-bottom: 15px;
@@ -474,18 +922,28 @@
 
     .config-label {
       display: block;
+
       color: var(--muted);
+
       font-size: 12px;
+
       margin-bottom: 7px;
     }
 
     .config-input {
       width: 100%;
-      border: 1px solid var(--border);
+
+      border:
+        1px solid var(--border);
+
       background: #0e1117;
+
       color: white;
+
       padding: 10px;
+
       border-radius: 8px;
+
       outline: none;
     }
 
@@ -493,17 +951,33 @@
       border-color: var(--blue);
     }
 
+    /* =========================
+       RESPONSIVE
+       ========================= */
+
     @media (max-width: 1000px) {
+
       .stats {
         grid-template-columns:
-          repeat(2, minmax(0, 1fr));
+          repeat(
+            2,
+            minmax(
+              0,
+              1fr
+            )
+          );
       }
+
     }
 
     @media (max-width: 700px) {
+
       .sidebar {
         width: 65px;
-        padding: 15px 8px;
+
+        padding:
+          15px
+          8px;
       }
 
       .logo-title,
@@ -514,17 +988,29 @@
 
       .logo {
         justify-content: center;
-        padding: 5px 0 20px;
+
+        padding:
+          5px
+          0
+          20px;
       }
 
       .main {
         margin-left: 65px;
-        width: calc(100% - 65px);
+
+        width:
+          calc(
+            100% - 65px
+          );
+
         padding: 15px;
       }
 
       .stats {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+          1fr
+          1fr;
+
         gap: 9px;
       }
 
@@ -547,20 +1033,46 @@
       .inventory-grid {
         grid-template-columns: 1fr;
       }
+
+      .inventory-summary {
+        grid-template-columns:
+          1fr
+          1fr
+          1fr;
+      }
+
+      .inventory-stat {
+        padding: 10px 5px;
+      }
+
+      .inventory-stat-value {
+        font-size: 17px;
+      }
+
     }
+
   </style>
+
 </head>
 
 <body>
 
 <div class="app">
 
+  <!-- =========================
+       SIDEBAR
+       ========================= -->
+
   <aside class="sidebar">
 
     <div class="logo">
-      <div class="logo-icon">AM</div>
+
+      <div class="logo-icon">
+        AM
+      </div>
 
       <div>
+
         <div class="logo-title">
           Adopt Me
         </div>
@@ -568,7 +1080,9 @@
         <div class="logo-subtitle">
           Control Center
         </div>
+
       </div>
+
     </div>
 
     <div class="nav-title">
@@ -609,24 +1123,34 @@
 
   </aside>
 
+  <!-- =========================
+       MAIN
+       ========================= -->
+
   <main class="main">
 
     <div class="topbar">
 
       <div>
-        <h1 class="page-title">
+
+        <h1
+          class="page-title"
+          id="pageTitle"
+        >
           Dashboard
         </h1>
 
         <div class="page-subtitle">
           Adopt Me Bot Monitoring System
         </div>
+
       </div>
 
       <div class="top-actions">
 
         <button
           class="btn"
+          id="refreshButton"
           onclick="loadDashboard()"
         >
           ↻ Refresh
@@ -636,11 +1160,16 @@
 
     </div>
 
+    <!-- =========================
+         DASHBOARD
+         ========================= -->
+
     <section id="dashboard">
 
       <div class="stats">
 
         <div class="stat">
+
           <div class="stat-label">
             TOTAL BOTS
           </div>
@@ -655,9 +1184,11 @@
           <div class="stat-small">
             Registered bots
           </div>
+
         </div>
 
         <div class="stat">
+
           <div class="stat-label">
             ONLINE
           </div>
@@ -672,9 +1203,11 @@
           <div class="stat-small">
             Active
           </div>
+
         </div>
 
         <div class="stat">
+
           <div class="stat-label">
             OFFLINE
           </div>
@@ -689,9 +1222,11 @@
           <div class="stat-small">
             No recent heartbeat
           </div>
+
         </div>
 
         <div class="stat">
+
           <div class="stat-label">
             CRYSTAL EGGS
           </div>
@@ -706,6 +1241,7 @@
           <div class="stat-small">
             Across all bots
           </div>
+
         </div>
 
       </div>
@@ -725,6 +1261,7 @@
               class="search"
               placeholder="Search bot / RF..."
               oninput="renderBots()"
+              autocomplete="off"
             >
 
           </div>
@@ -738,19 +1275,46 @@
             <thead>
 
               <tr>
-                <th>RF</th>
-                <th>Username</th>
-                <th>Status</th>
-                <th>Bucks</th>
-                <th>Crystal Egg</th>
-                <th>Auto Trade</th>
-                <th>Last Heartbeat</th>
-                <th>Action</th>
+
+                <th>
+                  RF
+                </th>
+
+                <th>
+                  Username
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+                <th>
+                  Bucks
+                </th>
+
+                <th>
+                  Crystal Egg
+                </th>
+
+                <th>
+                  Auto Trade
+                </th>
+
+                <th>
+                  Last Heartbeat
+                </th>
+
+                <th>
+                  Action
+                </th>
+
               </tr>
 
             </thead>
 
-            <tbody id="botTable"></tbody>
+            <tbody
+              id="botTable"
+            ></tbody>
 
           </table>
 
@@ -760,6 +1324,10 @@
 
     </section>
 
+    <!-- =========================
+         BOTS
+         ========================= -->
+
     <section
       id="bots"
       style="display:none"
@@ -768,19 +1336,27 @@
       <div class="panel">
 
         <div class="panel-header">
+
           <div class="panel-title">
             All Bots
           </div>
+
         </div>
 
         <div class="empty">
+
           Gunakan tabel Dashboard untuk
           monitoring dan kontrol bot.
+
         </div>
 
       </div>
 
     </section>
+
+    <!-- =========================
+         INVENTORY
+         ========================= -->
 
     <section
       id="inventory"
@@ -790,19 +1366,27 @@
       <div class="panel">
 
         <div class="panel-header">
+
           <div class="panel-title">
             Inventory
           </div>
+
         </div>
 
         <div class="empty">
+
           Pilih tombol inventory 📦 pada bot
           untuk melihat isi tas.
+
         </div>
 
       </div>
 
     </section>
+
+    <!-- =========================
+         SETTINGS
+         ========================= -->
 
     <section
       id="settings"
@@ -812,14 +1396,22 @@
       <div class="panel">
 
         <div class="panel-header">
+
           <div class="panel-title">
             System Information
           </div>
+
         </div>
 
         <div
-          style="padding:20px;color:#8e98a8;font-size:13px;line-height:1.8"
+          style="
+            padding:20px;
+            color:#8e98a8;
+            font-size:13px;
+            line-height:1.8
+          "
         >
+
           <div>
             Worker:
             <strong id="workerStatus">
@@ -840,6 +1432,7 @@
               -
             </strong>
           </div>
+
         </div>
 
       </div>
@@ -850,7 +1443,9 @@
 
 </div>
 
-<!-- INVENTORY MODAL -->
+<!-- =========================
+     INVENTORY MODAL
+     ========================= -->
 
 <div
   class="modal-backdrop"
@@ -862,16 +1457,20 @@
     <div class="modal-header">
 
       <div class="modal-title">
+
         Inventory
+
         <span
           id="inventoryUsername"
           style="color:#8e98a8"
         ></span>
+
       </div>
 
       <button
         class="close"
         onclick="closeModal()"
+        aria-label="Close"
       >
         ×
       </button>
@@ -897,7 +1496,9 @@
 
 </div>
 
-<!-- CONFIG MODAL -->
+<!-- =========================
+     CONFIG MODAL
+     ========================= -->
 
 <div
   class="modal-backdrop"
@@ -915,6 +1516,7 @@
       <button
         class="close"
         onclick="closeConfig()"
+        aria-label="Close"
       >
         ×
       </button>
@@ -952,6 +1554,7 @@
           id="receiverInput"
           class="config-input"
           placeholder="Username penerima"
+          autocomplete="off"
         >
 
       </div>
@@ -966,15 +1569,14 @@
           id="itemTargetInput"
           class="config-input"
           placeholder="Crystal Egg"
+          autocomplete="off"
         >
 
       </div>
 
       <div class="config-row">
 
-        <label
-          class="config-label"
-        >
+        <label class="config-label">
           Auto Trade
         </label>
 
@@ -997,6 +1599,7 @@
 
       <button
         class="btn btn-primary"
+        id="saveConfigButton"
         style="width:100%"
         onclick="saveConfig()"
       >
@@ -1009,6 +1612,10 @@
 
 </div>
 
+<!-- =========================
+     TOAST
+     ========================= -->
+
 <div
   class="toast-container"
   id="toastContainer"
@@ -1016,36 +1623,145 @@
 
 <script>
 
+  /*
+   * ============================================================
+   * CONFIG
+   * ============================================================
+   *
+   * Harus sama dengan:
+   *
+   * getgenv().DashboardConfig.SecretToken
+   *
+   * dan env.BOT_TOKEN di Cloudflare Worker.
+   *
+   * Saat ini token kamu = 0000.
+   *
+   * CATATAN:
+   * Token yang diletakkan di HTML dapat dilihat dari browser.
+   * Ini hanya solusi sementara sampai dashboard authentication
+   * dibuat.
+   */
+
+  var DASHBOARD_TOKEN = "0000";
+
+  /*
+   * ============================================================
+   * GLOBAL STATE
+   * ============================================================
+   */
+
   var bots = [];
+
   var currentInventoryBot = "";
+
   var inventoryRefreshTimer = null;
 
+  var dashboardLoading = false;
+
+  var configSaving = false;
+
+  /*
+   * ============================================================
+   * ESCAPE HTML
+   * ============================================================
+   */
+
   function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value)
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
   }
 
+  /*
+   * ============================================================
+   * NUMBER
+   * ============================================================
+   */
+
   function formatNumber(value) {
-    return new Intl.NumberFormat("id-ID")
-      .format(Number(value || 0));
+
+    var number =
+      Number(value || 0);
+
+    if (!Number.isFinite(number)) {
+      number = 0;
+    }
+
+    return new Intl.NumberFormat(
+      "id-ID"
+    ).format(number);
   }
+
+  /*
+   * ============================================================
+   * TIME
+   * ============================================================
+   */
 
   function formatTime(timestamp) {
 
-    if (!timestamp) {
+    if (
+      timestamp === null ||
+      timestamp === undefined ||
+      timestamp === "" ||
+      Number(timestamp) <= 0
+    ) {
       return "-";
     }
 
-    return new Date(timestamp)
-      .toLocaleString("id-ID", {
+    var date =
+      new Date(
+        Number(timestamp)
+      );
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return "-";
+    }
+
+    return date.toLocaleString(
+      "id-ID",
+      {
         dateStyle: "short",
         timeStyle: "medium"
-      });
+      }
+    );
   }
+
+  /*
+   * ============================================================
+   * TOAST
+   * ============================================================
+   */
 
   function showToast(message) {
 
@@ -1054,20 +1770,50 @@
         "toastContainer"
       );
 
+    if (!container) {
+      return;
+    }
+
     var toast =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
-    toast.className = "toast";
-    toast.textContent = message;
+    toast.className =
+      "toast";
 
-    container.appendChild(toast);
+    toast.textContent =
+      String(
+        message ||
+        ""
+      );
 
-    setTimeout(function () {
-      toast.remove();
-    }, 3000);
+    container.appendChild(
+      toast
+    );
+
+    setTimeout(
+      function () {
+
+        if (toast.parentNode) {
+          toast.remove();
+        }
+
+      },
+      3000
+    );
   }
 
-  function showSection(section, button) {
+  /*
+   * ============================================================
+   * SECTION
+   * ============================================================
+   */
+
+  function showSection(
+    section,
+    button
+  ) {
 
     var sections = [
       "dashboard",
@@ -1076,95 +1822,280 @@
       "settings"
     ];
 
-    sections.forEach(function (id) {
+    sections.forEach(
+      function (id) {
 
-      var element =
-        document.getElementById(id);
+        var element =
+          document.getElementById(
+            id
+          );
 
-      if (element) {
+        if (!element) {
+          return;
+        }
+
         element.style.display =
           id === section
             ? "block"
             : "none";
-      }
 
-    });
+      }
+    );
 
     document
-      .querySelectorAll(".nav-item")
-      .forEach(function (item) {
-        item.classList.remove("active");
-      });
+      .querySelectorAll(
+        ".nav-item"
+      )
+      .forEach(
+        function (item) {
+
+          item.classList.remove(
+            "active"
+          );
+
+        }
+      );
 
     if (button) {
-      button.classList.add("active");
+
+      button.classList.add(
+        "active"
+      );
+
     }
+
+    var titles = {
+      dashboard: "Dashboard",
+      bots: "Bots",
+      inventory: "Inventory",
+      settings: "Settings"
+    };
+
+    var pageTitle =
+      document.getElementById(
+        "pageTitle"
+      );
+
+    if (pageTitle) {
+
+      pageTitle.textContent =
+        titles[section] ||
+        "Dashboard";
+
+    }
+
   }
 
+  /*
+   * ============================================================
+   * LOAD DASHBOARD
+   * ============================================================
+   */
+
   async function loadDashboard() {
+
+    if (dashboardLoading) {
+      return;
+    }
+
+    dashboardLoading = true;
+
+    var refreshButton =
+      document.getElementById(
+        "refreshButton"
+      );
+
+    if (refreshButton) {
+
+      refreshButton.disabled =
+        true;
+
+    }
 
     try {
 
       var response =
         await fetch(
-          "/api/dashboard/data"
+          "/api/dashboard/data?t=" +
+          Date.now(),
+          {
+            method: "GET",
+
+            cache: "no-store",
+
+            headers: {
+              "Cache-Control":
+                "no-cache"
+            }
+          }
         );
 
       var data =
         await response.json();
 
-      if (!data.success &&
-          !Array.isArray(data.bots)) {
+      if (
+        !response.ok
+      ) {
 
         throw new Error(
           data.error ||
-          "Gagal mengambil data"
+          "HTTP " +
+          response.status
         );
+
       }
 
-      bots = data.bots || [];
+      if (
+        !data.success &&
+        !Array.isArray(
+          data.bots
+        )
+      ) {
 
-      document.getElementById(
-        "totalBots"
-      ).textContent =
-        formatNumber(data.totalBots);
-
-      document.getElementById(
-        "onlineBots"
-      ).textContent =
-        formatNumber(data.onlineBots);
-
-      document.getElementById(
-        "offlineBots"
-      ).textContent =
-        formatNumber(data.offlineBots);
-
-      document.getElementById(
-        "totalCrystalEggs"
-      ).textContent =
-        formatNumber(
-          data.totalCrystalEggs
+        throw new Error(
+          data.error ||
+          "Gagal mengambil data dashboard"
         );
 
-      document.getElementById(
-        "lastRefresh"
-      ).textContent =
-        new Date().toLocaleTimeString(
-          "id-ID"
+      }
+
+      bots =
+        Array.isArray(
+          data.bots
+        )
+          ? data.bots
+          : [];
+
+      var totalBots =
+        Number(
+          data.totalBots ||
+          bots.length ||
+          0
         );
+
+      var onlineBots =
+        Number(
+          data.onlineBots ||
+          0
+        );
+
+      var offlineBots =
+        Number(
+          data.offlineBots ||
+          0
+        );
+
+      var totalCrystalEggs =
+        Number(
+          data.totalCrystalEggs ||
+          0
+        );
+
+      var totalBotsElement =
+        document.getElementById(
+          "totalBots"
+        );
+
+      if (totalBotsElement) {
+
+        totalBotsElement.textContent =
+          formatNumber(
+            totalBots
+          );
+
+      }
+
+      var onlineBotsElement =
+        document.getElementById(
+          "onlineBots"
+        );
+
+      if (onlineBotsElement) {
+
+        onlineBotsElement.textContent =
+          formatNumber(
+            onlineBots
+          );
+
+      }
+
+      var offlineBotsElement =
+        document.getElementById(
+          "offlineBots"
+        );
+
+      if (offlineBotsElement) {
+
+        offlineBotsElement.textContent =
+          formatNumber(
+            offlineBots
+          );
+
+      }
+
+      var crystalElement =
+        document.getElementById(
+          "totalCrystalEggs"
+        );
+
+      if (crystalElement) {
+
+        crystalElement.textContent =
+          formatNumber(
+            totalCrystalEggs
+          );
+
+      }
+
+      var lastRefresh =
+        document.getElementById(
+          "lastRefresh"
+        );
+
+      if (lastRefresh) {
+
+        lastRefresh.textContent =
+          new Date()
+            .toLocaleTimeString(
+              "id-ID"
+            );
+
+      }
 
       renderBots();
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Dashboard error:",
+        error
+      );
 
       showToast(
+        error.message ||
         "Gagal mengambil data dashboard"
       );
 
+    } finally {
+
+      dashboardLoading =
+        false;
+
+      if (refreshButton) {
+
+        refreshButton.disabled =
+          false;
+
+      }
+
     }
   }
+
+  /*
+   * ============================================================
+   * RENDER BOTS
+   * ============================================================
+   */
 
   function renderBots() {
 
@@ -1173,166 +2104,303 @@
         "botTable"
       );
 
-    var search =
+    if (!table) {
+      return;
+    }
+
+    var searchInput =
       document.getElementById(
         "searchInput"
-      ).value
-        .toLowerCase()
-        .trim();
+      );
+
+    var search =
+      searchInput
+        ? String(
+            searchInput.value ||
+            ""
+          )
+            .toLowerCase()
+            .trim()
+        : "";
 
     var filtered =
-      bots.filter(function (bot) {
+      bots.filter(
+        function (bot) {
 
-        var username =
-          String(
-            bot.username || ""
-          ).toLowerCase();
+          var username =
+            String(
+              bot &&
+              bot.username ||
+              ""
+            ).toLowerCase();
 
-        var rf =
-          String(
-            bot.rf_location || ""
-          ).toLowerCase();
+          var rf =
+            String(
+              bot &&
+              bot.rf_location ||
+              ""
+            ).toLowerCase();
 
-        return (
-          username.includes(search) ||
-          rf.includes(search)
-        );
+          return (
+            username.includes(
+              search
+            ) ||
+            rf.includes(
+              search
+            )
+          );
 
-      });
+        }
+      );
 
-    if (filtered.length === 0) {
+    if (
+      filtered.length === 0
+    ) {
 
       table.innerHTML =
-        '<tr><td colspan="8">' +
-        '<div class="empty">' +
-        'Tidak ada bot ditemukan.' +
-        '</div>' +
-        '</td></tr>';
+        '<tr>' +
+          '<td colspan="8">' +
+            '<div class="empty">' +
+              'Tidak ada bot ditemukan.' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
 
       return;
     }
 
     table.innerHTML =
-      filtered.map(function (bot) {
+      filtered
+        .map(
+          function (bot) {
 
-        var online =
-          bot.status === "ONLINE";
+            var username =
+              String(
+                bot.username ||
+                ""
+              );
 
-        return (
-          "<tr>" +
+            var online =
+              String(
+                bot.status ||
+                ""
+              ).toUpperCase() ===
+              "ONLINE";
 
-          "<td class='rf'>" +
-          escapeHtml(
-            bot.rf_location
-          ) +
-          "</td>" +
+            var autotrade =
+              bot.autotrade_status ===
+              true ||
+              String(
+                bot.autotrade_status ||
+                ""
+              ).toLowerCase() ===
+              "true";
 
-          "<td>" +
-          "<div class='user'>" +
-          escapeHtml(
-            bot.username
-          ) +
-          "</div>" +
-          "</td>" +
+            return (
 
-          "<td>" +
+              "<tr>" +
 
-          "<span class='status " +
-          (online
-            ? "online"
-            : "offline") +
-          "'>" +
+                "<td class='rf'>" +
+                  escapeHtml(
+                    bot.rf_location ||
+                    "-"
+                  ) +
+                "</td>" +
 
-          "<span class='dot'></span>" +
+                "<td>" +
+                  "<div class='user'>" +
+                    escapeHtml(
+                      username
+                    ) +
+                  "</div>" +
+                "</td>" +
 
-          (online
-            ? "ONLINE"
-            : "OFFLINE") +
+                "<td>" +
 
-          "</span>" +
+                  "<span class='status " +
+                    (
+                      online
+                        ? "online"
+                        : "offline"
+                    ) +
+                  "'>" +
 
-          "</td>" +
+                    "<span class='dot'></span>" +
 
-          "<td>" +
-          formatNumber(bot.bucks) +
-          "</td>" +
+                    (
+                      online
+                        ? "ONLINE"
+                        : "OFFLINE"
+                    ) +
 
-          "<td>" +
-          formatNumber(
-            bot.crystalEggCount
-          ) +
-          "</td>" +
+                  "</span>" +
 
-          "<td>" +
+                "</td>" +
 
-          (
-            bot.autotrade_status
-              ? '<span class="status online">ON</span>'
-              : '<span class="status offline">OFF</span>'
-          ) +
+                "<td>" +
+                  formatNumber(
+                    bot.bucks
+                  ) +
+                "</td>" +
 
-          "</td>" +
+                "<td>" +
+                  formatNumber(
+                    bot.crystalEggCount
+                  ) +
+                "</td>" +
 
-          "<td>" +
-          formatTime(
-            bot.lastHeartbeat
-          ) +
-          "</td>" +
+                "<td>" +
 
-          "<td>" +
+                  (
+                    autotrade
+                      ? (
+                        '<span class="status online">' +
+                          'ON' +
+                        '</span>'
+                      )
+                      : (
+                        '<span class="status offline">' +
+                          'OFF' +
+                        '</span>'
+                      )
+                  ) +
 
-          "<div class='actions'>" +
+                "</td>" +
 
-          "<button " +
-          "class='icon-btn' " +
-          "title='Refresh Inventory' " +
-          "onclick='requestInventory(" +
-          JSON.stringify(
-            bot.username
-          ) +
-          ")'>" +
-          "📦" +
-          "</button>" +
+                "<td>" +
+                  formatTime(
+                    bot.lastHeartbeat
+                  ) +
+                "</td>" +
 
-          "<button " +
-          "class='icon-btn' " +
-          "title='Configuration' " +
-          "onclick='openConfig(" +
-          JSON.stringify(
-            bot.username
-          ) +
-          ")'>" +
-          "⚙" +
-          "</button>" +
+                "<td>" +
 
-          "</div>" +
+                  "<div class='actions'>" +
 
-          "</td>" +
+                    "<button " +
+                      "class='icon-btn' " +
+                      "title='Refresh Inventory' " +
+                      "aria-label='Refresh Inventory' " +
+                      "onclick='requestInventory(" +
+                        JSON.stringify(
+                          username
+                        ) +
+                      ")'>" +
+                      "📦" +
+                    "</button>" +
 
-          "</tr>"
-        );
+                    "<button " +
+                      "class='icon-btn' " +
+                      "title='Configuration' " +
+                      "aria-label='Configuration' " +
+                      "onclick='openConfig(" +
+                        JSON.stringify(
+                          username
+                        ) +
+                      ")'>" +
+                      "⚙" +
+                    "</button>" +
 
-      }).join("");
+                  "</div>" +
+
+                "</td>" +
+
+              "</tr>"
+
+            );
+
+          }
+        )
+        .join("");
 
   }
+
+  /*
+   * ============================================================
+   * REQUEST INVENTORY
+   * ============================================================
+   */
 
   async function requestInventory(
     username
   ) {
 
+    username =
+      String(
+        username ||
+        ""
+      ).trim();
+
+    if (!username) {
+
+      showToast(
+        "Username bot tidak valid."
+      );
+
+      return;
+    }
+
     currentInventoryBot =
       username;
+
+    /*
+     * Cari timestamp inventory
+     * sebelum command dikirim.
+     */
+
+    var botBefore =
+      bots.find(
+        function (bot) {
+
+          return (
+            String(
+              bot.username ||
+              ""
+            ) ===
+            username
+          );
+
+        }
+      );
+
+    var previousUpdatedAt =
+      botBefore &&
+      botBefore.inventoryUpdatedAt
+        ? Number(
+            botBefore.inventoryUpdatedAt
+          )
+        : 0;
+
+    if (
+      !Number.isFinite(
+        previousUpdatedAt
+      )
+    ) {
+
+      previousUpdatedAt = 0;
+
+    }
 
     openInventoryModal(
       username
     );
 
-    document.getElementById(
-      "inventoryBody"
-    ).innerHTML =
+    var inventoryBody =
+      document.getElementById(
+        "inventoryBody"
+      );
+
+    if (!inventoryBody) {
+      return;
+    }
+
+    inventoryBody.innerHTML =
       '<div class="loading">' +
-      '<div class="spinner"></div>' +
-      'Mengirim perintah ke bot...' +
+
+        '<div class="spinner"></div>' +
+
+        'Mengirim perintah ke bot...' +
+
       '</div>';
 
     try {
@@ -1342,162 +2410,127 @@
           "/api/command/inventory",
           {
             method: "POST",
+
+            cache: "no-store",
+
             headers: {
+
               "Content-Type":
-                "application/json"
+                "application/json",
+
+              "Authorization":
+                DASHBOARD_TOKEN
+
             },
-            body: JSON.stringify({
-              username: username
-            })
+
+            body:
+              JSON.stringify(
+                {
+                  bot_username:
+                    username
+                }
+              )
+
           }
         );
 
-      var data =
-        await response.json();
+      var data;
 
-      if (!data.success) {
+      try {
+
+        data =
+          await response.json();
+
+      } catch {
+
+        throw new Error(
+          "Response Worker bukan JSON valid."
+        );
+
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+
         throw new Error(
           data.error ||
-          "Gagal mengirim command"
+          "Gagal mengirim command inventory. HTTP " +
+          response.status
         );
+
       }
 
       showToast(
-        "Perintah refresh dikirim ke " +
-        username
+        data.queued
+          ? (
+            "Perintah refresh dikirim ke " +
+            username
+          )
+          : (
+            "Refresh inventory sudah dalam antrean."
+          )
       );
 
-      document.getElementById(
-        "inventoryBody"
-      ).innerHTML =
+      inventoryBody.innerHTML =
         '<div class="loading">' +
-        '<div class="spinner"></div>' +
-        'Menunggu inventory dari bot...' +
+
+          '<div class="spinner"></div>' +
+
+          'Menunggu inventory terbaru dari bot...' +
+
+          '<div style="margin-top:8px;font-size:11px">' +
+            'Maksimal 30 detik' +
+          '</div>' +
+
         '</div>';
 
       startInventoryPolling(
-        username
+        username,
+        previousUpdatedAt
       );
 
     } catch (error) {
 
-      showToast(error.message);
+      console.error(
+        "Inventory command error:",
+        error
+      );
 
-      document.getElementById(
-        "inventoryBody"
-      ).innerHTML =
+      inventoryBody.innerHTML =
         '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
+
+          escapeHtml(
+            error.message ||
+            "Terjadi kesalahan."
+          ) +
+
         '</div>';
 
+      showToast(
+        error.message ||
+        "Gagal meminta inventory."
+      );
+
     }
+
   }
+
+  /*
+   * ============================================================
+   * POLLING INVENTORY
+   * ============================================================
+   */
 
   function startInventoryPolling(
-    username
+    username,
+    previousUpdatedAt
   ) {
 
-    if (inventoryRefreshTimer) {
-      clearInterval(
-        inventoryRefreshTimer
-      );
-    }
-
-    var started =
-      Date.now();
-
-    inventoryRefreshTimer =
-      setInterval(
-        async function () {
-
-          if (
-            Date.now() - started >
-            45000
-          ) {
-
-            clearInterval(
-              inventoryRefreshTimer
-            );
-
-            inventoryRefreshTimer =
-              null;
-
-            showToast(
-              "Bot belum mengirim inventory."
-            );
-
-            return;
-          }
-
-          try {
-
-            var response =
-              await fetch(
-                "/api/inventory/" +
-                encodeURIComponent(
-                  username
-                )
-              );
-
-            var data =
-              await response.json();
-
-            if (
-              data.success &&
-              data.inventory
-            ) {
-
-              clearInterval(
-                inventoryRefreshTimer
-              );
-
-              inventoryRefreshTimer =
-                null;
-
-              renderInventory(
-                data.inventory
-              );
-
-              showToast(
-                "Inventory berhasil diperbarui."
-              );
-
-            }
-
-          } catch (error) {
-            console.error(error);
-          }
-
-        },
-        2000
-      );
-  }
-
-  function openInventoryModal(
-    username
-  ) {
-
-    document.getElementById(
-      "inventoryUsername"
-    ).textContent =
-      " — " +
-      username;
-
-    document.getElementById(
-      "inventoryModal"
-    ).classList.add("show");
-
-  }
-
-  function closeModal() {
-
-    document.getElementById(
-      "inventoryModal"
-    ).classList.remove("show");
-
-    if (inventoryRefreshTimer) {
+    if (
+      inventoryRefreshTimer
+    ) {
 
       clearInterval(
         inventoryRefreshTimer
@@ -1507,124 +2540,289 @@
         null;
 
     }
-  }
 
-  async function openConfig(
-    username
-  ) {
+    var startedAt =
+      Date.now();
 
-    var bot =
-      bots.find(function (item) {
-        return item.username ===
-          username;
-      });
+    var timeout =
+      30000;
 
-    if (!bot) {
-      return;
-    }
+    /*
+     * Fungsi untuk mengambil inventory.
+     */
 
-    document.getElementById(
-      "configUsername"
-    ).value =
-      username;
+    async function poll() {
 
-    document.getElementById(
-      "configUsernameDisplay"
-    ).value =
-      username;
+      /*
+       * Jangan lanjut polling kalau
+       * modal sudah pindah ke bot lain.
+       */
 
-    document.getElementById(
-      "autoTradeInput"
-    ).value =
-      bot.autotrade_status
-        ? "true"
-        : "false";
+      if (
+        currentInventoryBot !==
+        username
+      ) {
 
-    document.getElementById(
-      "configModal"
-    ).classList.add("show");
-  }
+        if (
+          inventoryRefreshTimer
+        ) {
 
-  function closeConfig() {
+          clearInterval(
+            inventoryRefreshTimer
+          );
 
-    document.getElementById(
-      "configModal"
-    ).classList.remove("show");
+          inventoryRefreshTimer =
+            null;
 
-  }
+        }
 
-  async function saveConfig() {
+        return;
 
-    var username =
-      document.getElementById(
-        "configUsername"
-      ).value;
-
-    var receiver =
-      document.getElementById(
-        "receiverInput"
-      ).value;
-
-    var itemTarget =
-      document.getElementById(
-        "itemTargetInput"
-      ).value;
-
-    var autotrade =
-      document.getElementById(
-        "autoTradeInput"
-      ).value === "true";
-
-    try {
-
-      var response =
-        await fetch(
-          "/api/command/config",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-            body: JSON.stringify({
-              bot_username:
-                username,
-              autotrade:
-                autotrade,
-              item_target:
-                itemTarget,
-              receiver:
-                receiver
-            })
-          }
-        );
-
-      var data =
-        await response.json();
-
-      if (!data.success) {
-        throw new Error(
-          data.error ||
-          "Gagal menyimpan config"
-        );
       }
 
-      showToast(
-        "Configuration dikirim ke bot."
-      );
+      try {
 
-      closeConfig();
+        var response =
+          await fetch(
+            "/api/inventory/" +
+            encodeURIComponent(
+              username
+            ) +
+            "?t=" +
+            Date.now(),
+            {
+              method: "GET",
 
-      loadDashboard();
+              cache: "no-store",
 
-    } catch (error) {
+              headers: {
+                "Cache-Control":
+                  "no-cache"
+              }
+            }
+          );
 
-      showToast(
-        error.message
-      );
+        if (!response.ok) {
+
+          console.warn(
+            "Inventory HTTP:",
+            response.status
+          );
+
+          return;
+
+        }
+
+        var data =
+          await response.json();
+
+        if (
+          !data ||
+          !data.success
+        ) {
+
+          return;
+
+        }
+
+        var updatedAt =
+          Number(
+            data.inventoryUpdatedAt ||
+            0
+          );
+
+        if (
+          !Number.isFinite(
+            updatedAt
+          )
+        ) {
+
+          updatedAt = 0;
+
+        }
+
+        /*
+         * Inventory baru:
+         *
+         * previousUpdatedAt = 0
+         * berarti belum ada timestamp sebelumnya.
+         *
+         * Jika timestamp baru lebih besar,
+         * berarti bot sudah mengirim telemetry baru.
+         */
+
+        var isNewInventory =
+          previousUpdatedAt === 0 ||
+          updatedAt >
+            previousUpdatedAt;
+
+        if (
+          isNewInventory
+        ) {
+
+          stopInventoryPolling();
+
+          renderInventory({
+            grouped:
+              Array.isArray(
+                data.groupedInventory
+              )
+                ? data.groupedInventory
+                : [],
+
+            itemCounts:
+              data.itemCounts &&
+              typeof data.itemCounts ===
+                "object"
+                ? data.itemCounts
+                : {},
+
+            totalItems:
+              Number(
+                data.inventoryCount ||
+                0
+              ),
+
+            crystalEggCount:
+              Number(
+                data.crystalEggCount ||
+                0
+              ),
+
+            updatedAt:
+              data.inventoryUpdatedAt ||
+              null
+          });
+
+          showToast(
+            "Inventory " +
+            username +
+            " berhasil diperbarui."
+          );
+
+          return;
+
+        }
+
+        /*
+         * Kalau belum ada inventory baru,
+         * tunggu lagi.
+         */
+
+        if (
+          Date.now() -
+          startedAt >=
+          timeout
+        ) {
+
+          stopInventoryPolling();
+
+          /*
+           * Tampilkan data terakhir yang ada.
+           * Ini lebih baik daripada modal loading
+           * selamanya.
+           */
+
+          renderInventory({
+            grouped:
+              Array.isArray(
+                data.groupedInventory
+              )
+                ? data.groupedInventory
+                : [],
+
+            itemCounts:
+              data.itemCounts &&
+              typeof data.itemCounts ===
+                "object"
+                ? data.itemCounts
+                : {},
+
+            totalItems:
+              Number(
+                data.inventoryCount ||
+                0
+              ),
+
+            crystalEggCount:
+              Number(
+                data.crystalEggCount ||
+                0
+              ),
+
+            updatedAt:
+              data.inventoryUpdatedAt ||
+              null,
+
+            stale:
+              true
+          });
+
+          showToast(
+            "Bot belum mengirim inventory terbaru."
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Inventory polling error:",
+          error
+        );
+
+        /*
+         * Jangan langsung menghentikan polling
+         * hanya karena satu request gagal.
+         */
+
+      }
 
     }
+
+    /*
+     * Request pertama langsung,
+     * tidak perlu menunggu 1 detik.
+     */
+
+    poll();
+
+    inventoryRefreshTimer =
+      setInterval(
+        poll,
+        1000
+      );
+
   }
+
+  /*
+   * ============================================================
+   * STOP INVENTORY POLLING
+   * ============================================================
+   */
+
+  function stopInventoryPolling() {
+
+    if (
+      inventoryRefreshTimer
+    ) {
+
+      clearInterval(
+        inventoryRefreshTimer
+      );
+
+      inventoryRefreshTimer =
+        null;
+
+    }
+
+  }
+
+  /*
+   * ============================================================
+   * RENDER INVENTORY
+   * ============================================================
+   */
 
   function renderInventory(
     inventory
@@ -1635,65 +2833,693 @@
         "inventoryBody"
       );
 
-    var grouped =
-      inventory.grouped || [];
-
-    if (grouped.length === 0) {
-
-      body.innerHTML =
-        '<div class="empty">' +
-        'Inventory kosong.' +
-        '</div>';
-
+    if (!body) {
       return;
     }
 
-    body.innerHTML =
-      "<div style='margin-bottom:15px;color:#8e98a8;font-size:12px'>" +
-      "Total item: " +
-      formatNumber(
-        inventory.totalItems
-      ) +
-      " • Crystal Egg: " +
-      formatNumber(
-        inventory.crystalEggCount
-      ) +
-      "</div>" +
+    if (!inventory) {
 
-      "<div class='inventory-grid'>" +
+      body.innerHTML =
+        '<div class="empty">' +
+          'Data inventory tidak tersedia.' +
+        '</div>';
 
-      grouped.map(function (item) {
+      return;
 
-        return (
-          "<div class='inventory-item'>" +
+    }
 
-          "<span class='inventory-name'>" +
-          escapeHtml(
-            item.name
-          ) +
-          "</span>" +
+    var grouped =
+      Array.isArray(
+        inventory.grouped
+      )
+        ? inventory.grouped
+        : [];
 
-          "<span class='inventory-count'>" +
-          "×" +
+    var itemCounts =
+      inventory.itemCounts &&
+      typeof inventory.itemCounts ===
+        "object"
+        ? inventory.itemCounts
+        : {};
+
+    var totalItems =
+      Number(
+        inventory.totalItems ||
+        0
+      );
+
+    var crystalEggCount =
+      Number(
+        inventory.crystalEggCount ||
+        0
+      );
+
+    var updatedAt =
+      inventory.updatedAt
+        ? formatTime(
+            inventory.updatedAt
+          )
+        : "-";
+
+    var html = "";
+
+    /*
+     * SUMMARY
+     */
+
+    html +=
+      '<div class="inventory-summary">';
+
+    html +=
+      '<div class="inventory-stat">' +
+
+        '<div class="inventory-stat-value">' +
           formatNumber(
-            item.count
+            totalItems
           ) +
-          "</span>" +
+        '</div>' +
 
-          "</div>"
+        '<div class="inventory-stat-label">' +
+          'Total Item' +
+        '</div>' +
+
+      '</div>';
+
+    html +=
+      '<div class="inventory-stat">' +
+
+        '<div class="inventory-stat-value">' +
+          formatNumber(
+            crystalEggCount
+          ) +
+        '</div>' +
+
+        '<div class="inventory-stat-label">' +
+          'Crystal Egg' +
+        '</div>' +
+
+      '</div>';
+
+    html +=
+      '<div class="inventory-stat">' +
+
+        '<div class="inventory-stat-value">' +
+          formatNumber(
+            Object.keys(
+              itemCounts
+            ).length
+          ) +
+        '</div>' +
+
+        '<div class="inventory-stat-label">' +
+          'Jenis Item' +
+        '</div>' +
+
+      '</div>';
+
+    html +=
+      '</div>';
+
+    /*
+     * UPDATED TIME
+     */
+
+    html +=
+      '<div class="inventory-updated">' +
+
+        'Terakhir diperbarui: ' +
+
+        escapeHtml(
+          updatedAt
+        ) +
+
+        (
+          inventory.stale
+            ? (
+              ' · <span style="color:var(--yellow)">' +
+                'Data terakhir · belum ada update baru' +
+              '</span>'
+            )
+            : ""
+        ) +
+
+      '</div>';
+
+    /*
+     * INVENTORY KOSONG
+     */
+
+    if (
+      grouped.length === 0
+    ) {
+
+      html +=
+        '<div class="empty">' +
+          'Inventory kosong atau belum tersedia.' +
+        '</div>';
+
+      body.innerHTML =
+        html;
+
+      return;
+
+    }
+
+    /*
+     * LIST
+     */
+
+    html +=
+      '<div class="inventory-grid">';
+
+    grouped.forEach(
+      function (item) {
+
+        if (
+          !item ||
+          typeof item !==
+            "object"
+        ) {
+
+          return;
+
+        }
+
+        var name =
+          String(
+            item.name ||
+            item.kind ||
+            "Unknown"
+          );
+
+        var count =
+          Number(
+            item.count ??
+            item.quantity ??
+            0
+          );
+
+        if (
+          !Number.isFinite(
+            count
+          )
+        ) {
+
+          count = 0;
+
+        }
+
+        var type =
+          String(
+            item.type ||
+            ""
+          );
+
+        html +=
+          '<div class="inventory-item">';
+
+        html +=
+          '<div class="inventory-item-info">';
+
+        html +=
+          '<div class="inventory-item-name">' +
+
+            escapeHtml(
+              name
+            ) +
+
+          '</div>';
+
+        if (type) {
+
+          html +=
+            '<div class="inventory-item-type">' +
+
+              escapeHtml(
+                type
+              ) +
+
+            '</div>';
+
+        }
+
+        html +=
+          '</div>';
+
+        html +=
+          '<div class="inventory-item-count">' +
+
+            'x' +
+
+            formatNumber(
+              count
+            ) +
+
+          '</div>';
+
+        html +=
+          '</div>';
+
+      }
+    );
+
+    html +=
+      '</div>';
+
+    body.innerHTML =
+      html;
+
+  }
+
+  /*
+   * ============================================================
+   * OPEN INVENTORY MODAL
+   * ============================================================
+   */
+
+  function openInventoryModal(
+    username
+  ) {
+
+    var usernameElement =
+      document.getElementById(
+        "inventoryUsername"
+      );
+
+    if (usernameElement) {
+
+      usernameElement.textContent =
+        " — " +
+        String(
+          username ||
+          ""
         );
 
-      }).join("") +
+    }
 
-      "</div>" +
+    var modal =
+      document.getElementById(
+        "inventoryModal"
+      );
 
-      "<div style='margin-top:18px;color:#697486;font-size:11px'>" +
-      "Updated: " +
-      formatTime(
-        inventory.updatedAt
-      ) +
-      "</div>";
+    if (modal) {
+
+      modal.classList.add(
+        "show"
+      );
+
+    }
+
   }
+
+  /*
+   * ============================================================
+   * CLOSE INVENTORY MODAL
+   * ============================================================
+   */
+
+  function closeModal() {
+
+    stopInventoryPolling();
+
+    currentInventoryBot =
+      "";
+
+    var modal =
+      document.getElementById(
+        "inventoryModal"
+      );
+
+    if (modal) {
+
+      modal.classList.remove(
+        "show"
+      );
+
+    }
+
+  }
+
+  /*
+   * ============================================================
+   * OPEN CONFIG
+   * ============================================================
+   */
+
+  function openConfig(
+    username
+  ) {
+
+    username =
+      String(
+        username ||
+        ""
+      ).trim();
+
+    if (!username) {
+      return;
+    }
+
+    var bot =
+      bots.find(
+        function (item) {
+
+          return (
+            String(
+              item.username ||
+              ""
+            ) ===
+            username
+          );
+
+        }
+      );
+
+    if (!bot) {
+
+      showToast(
+        "Data bot tidak ditemukan."
+      );
+
+      return;
+
+    }
+
+    var configUsername =
+      document.getElementById(
+        "configUsername"
+      );
+
+    if (configUsername) {
+
+      configUsername.value =
+        username;
+
+    }
+
+    var configUsernameDisplay =
+      document.getElementById(
+        "configUsernameDisplay"
+      );
+
+    if (configUsernameDisplay) {
+
+      configUsernameDisplay.value =
+        username;
+
+    }
+
+    var autoTrade =
+      document.getElementById(
+        "autoTradeInput"
+      );
+
+    if (autoTrade) {
+
+      var enabled =
+        bot.autotrade_status ===
+        true ||
+        String(
+          bot.autotrade_status ||
+          ""
+        ).toLowerCase() ===
+        "true";
+
+      autoTrade.value =
+        enabled
+          ? "true"
+          : "false";
+
+    }
+
+    var receiver =
+      document.getElementById(
+        "receiverInput"
+      );
+
+    if (receiver) {
+
+      receiver.value =
+        bot.receiver ||
+        "";
+
+    }
+
+    var itemTarget =
+      document.getElementById(
+        "itemTargetInput"
+      );
+
+    if (itemTarget) {
+
+      itemTarget.value =
+        bot.item_target ||
+        "";
+
+    }
+
+    var modal =
+      document.getElementById(
+        "configModal"
+      );
+
+    if (modal) {
+
+      modal.classList.add(
+        "show"
+      );
+
+    }
+
+  }
+
+  /*
+   * ============================================================
+   * CLOSE CONFIG
+   * ============================================================
+   */
+
+  function closeConfig() {
+
+    var modal =
+      document.getElementById(
+        "configModal"
+      );
+
+    if (modal) {
+
+      modal.classList.remove(
+        "show"
+      );
+
+    }
+
+  }
+
+  /*
+   * ============================================================
+   * SAVE CONFIG
+   * ============================================================
+   */
+
+  async function saveConfig() {
+
+    if (configSaving) {
+      return;
+    }
+
+    var usernameElement =
+      document.getElementById(
+        "configUsername"
+      );
+
+    var receiverElement =
+      document.getElementById(
+        "receiverInput"
+      );
+
+    var itemTargetElement =
+      document.getElementById(
+        "itemTargetInput"
+      );
+
+    var autoTradeElement =
+      document.getElementById(
+        "autoTradeInput"
+      );
+
+    var username =
+      usernameElement
+        ? String(
+            usernameElement.value ||
+            ""
+          ).trim()
+        : "";
+
+    var receiver =
+      receiverElement
+        ? String(
+            receiverElement.value ||
+            ""
+          ).trim()
+        : "";
+
+    var itemTarget =
+      itemTargetElement
+        ? String(
+            itemTargetElement.value ||
+            ""
+          ).trim()
+        : "";
+
+    var autotrade =
+      autoTradeElement
+        ? autoTradeElement.value ===
+          "true"
+        : false;
+
+    if (!username) {
+
+      showToast(
+        "Username bot tidak valid."
+      );
+
+      return;
+
+    }
+
+    configSaving =
+      true;
+
+    var saveButton =
+      document.getElementById(
+        "saveConfigButton"
+      );
+
+    if (saveButton) {
+
+      saveButton.disabled =
+        true;
+
+      saveButton.textContent =
+        "Menyimpan...";
+
+    }
+
+    try {
+
+      var response =
+        await fetch(
+          "/api/command/config",
+          {
+            method: "POST",
+
+            cache: "no-store",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Authorization":
+                DASHBOARD_TOKEN
+
+            },
+
+            body:
+              JSON.stringify(
+                {
+                  bot_username:
+                    username,
+
+                  autotrade:
+                    autotrade,
+
+                  item_target:
+                    itemTarget,
+
+                  receiver:
+                    receiver
+                }
+              )
+
+          }
+        );
+
+      var data;
+
+      try {
+
+        data =
+          await response.json();
+
+      } catch {
+
+        throw new Error(
+          "Response Worker bukan JSON valid."
+        );
+
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+
+        throw new Error(
+          data.error ||
+          (
+            "Gagal menyimpan config. HTTP " +
+            response.status
+          )
+        );
+
+      }
+
+      showToast(
+        "Configuration berhasil dikirim ke bot."
+      );
+
+      closeConfig();
+
+      await loadDashboard();
+
+    } catch (error) {
+
+      console.error(
+        "Config error:",
+        error
+      );
+
+      showToast(
+        error.message ||
+        "Gagal menyimpan configuration."
+      );
+
+    } finally {
+
+      configSaving =
+        false;
+
+      if (saveButton) {
+
+        saveButton.disabled =
+          false;
+
+        saveButton.textContent =
+          "Simpan Configuration";
+
+      }
+
+    }
+
+  }
+
+  /*
+   * ============================================================
+   * HEALTH CHECK
+   * ============================================================
+   */
 
   async function checkHealth() {
 
@@ -1701,58 +3527,190 @@
 
       var response =
         await fetch(
-          "/api/health"
+          "/api/health?t=" +
+          Date.now(),
+          {
+            method: "GET",
+
+            cache: "no-store"
+          }
         );
 
       var data =
         await response.json();
 
-      document.getElementById(
-        "workerStatus"
-      ).textContent =
-        data.worker === "online"
-          ? "Online"
-          : "Error";
+      var workerStatus =
+        document.getElementById(
+          "workerStatus"
+        );
 
-      document.getElementById(
-        "kvStatus"
-      ).textContent =
-        data.kv
-          ? "Connected"
-          : "Not connected";
+      var kvStatus =
+        document.getElementById(
+          "kvStatus"
+        );
+
+      if (workerStatus) {
+
+        workerStatus.textContent =
+          data.worker ===
+          "online"
+            ? "Online"
+            : "Error";
+
+        workerStatus.style.color =
+          data.worker ===
+          "online"
+            ? "var(--green)"
+            : "var(--red)";
+
+      }
+
+      if (kvStatus) {
+
+        kvStatus.textContent =
+          data.kv
+            ? "Connected"
+            : "Not connected";
+
+        kvStatus.style.color =
+          data.kv
+            ? "var(--green)"
+            : "var(--red)";
+
+      }
 
     } catch (error) {
 
-      document.getElementById(
-        "workerStatus"
-      ).textContent =
-        "Offline";
+      console.error(
+        "Health check error:",
+        error
+      );
 
-      document.getElementById(
-        "kvStatus"
-      ).textContent =
-        "Error";
+      var workerStatus =
+        document.getElementById(
+          "workerStatus"
+        );
+
+      var kvStatus =
+        document.getElementById(
+          "kvStatus"
+        );
+
+      if (workerStatus) {
+
+        workerStatus.textContent =
+          "Offline";
+
+        workerStatus.style.color =
+          "var(--red)";
+
+      }
+
+      if (kvStatus) {
+
+        kvStatus.textContent =
+          "Error";
+
+        kvStatus.style.color =
+          "var(--red)";
+
+      }
 
     }
+
   }
+
+  /*
+   * ============================================================
+   * ESC KEY
+   * ============================================================
+   */
 
   document.addEventListener(
     "keydown",
     function (event) {
 
-      if (event.key === "Escape") {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+
         closeModal();
+
         closeConfig();
+
       }
 
     }
   );
 
+  /*
+   * ============================================================
+   * CLICK BACKDROP
+   * ============================================================
+   */
+
+  document
+    .getElementById(
+      "inventoryModal"
+    )
+    .addEventListener(
+      "click",
+      function (event) {
+
+        if (
+          event.target ===
+          this
+        ) {
+
+          closeModal();
+
+        }
+
+      }
+    );
+
+  document
+    .getElementById(
+      "configModal"
+    )
+    .addEventListener(
+      "click",
+      function (event) {
+
+        if (
+          event.target ===
+          this
+        ) {
+
+          closeConfig();
+
+        }
+
+      }
+    );
+
+  /*
+   * ============================================================
+   * INITIAL LOAD
+   * ============================================================
+   */
+
   loadDashboard();
+
   checkHealth();
 
+  /*
+   * Dashboard otomatis refresh
+   * setiap 30 detik.
+   */
+
   setInterval(
-    loadDashboard,
+    function () {
+
+      loadDashboard();
+
+    },
     30000
   );
 
