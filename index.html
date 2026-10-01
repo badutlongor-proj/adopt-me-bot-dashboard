@@ -1151,7 +1151,7 @@
         <button
           class="btn"
           id="refreshButton"
-          onclick="loadDashboard()"
+          onclick="refreshAll()"
         >
           ↻ Refresh
         </button>
@@ -1480,17 +1480,7 @@
     <div
       class="modal-body"
       id="inventoryBody"
-    >
-
-      <div class="loading">
-
-        <div class="spinner"></div>
-
-        Loading inventory...
-
-      </div>
-
-    </div>
+    ></div>
 
   </div>
 
@@ -1627,19 +1617,6 @@
    * ============================================================
    * CONFIG
    * ============================================================
-   *
-   * Harus sama dengan:
-   *
-   * getgenv().DashboardConfig.SecretToken
-   *
-   * dan env.BOT_TOKEN di Cloudflare Worker.
-   *
-   * Saat ini token kamu = 0000.
-   *
-   * CATATAN:
-   * Token yang diletakkan di HTML dapat dilihat dari browser.
-   * Ini hanya solusi sementara sampai dashboard authentication
-   * dibuat.
    */
 
   var DASHBOARD_TOKEN = "0000";
@@ -1654,9 +1631,9 @@
 
   var currentInventoryBot = "";
 
-  var inventoryRefreshTimer = null;
-
   var dashboardLoading = false;
+
+  var refreshAllLoading = false;
 
   var configSaving = false;
 
@@ -1696,6 +1673,7 @@
         /'/g,
         "&#039;"
       );
+
   }
 
   /*
@@ -1707,15 +1685,26 @@
   function formatNumber(value) {
 
     var number =
-      Number(value || 0);
+      Number(
+        value || 0
+      );
 
-    if (!Number.isFinite(number)) {
+    if (
+      !Number.isFinite(
+        number
+      )
+    ) {
+
       number = 0;
+
     }
 
     return new Intl.NumberFormat(
       "id-ID"
-    ).format(number);
+    ).format(
+      number
+    );
+
   }
 
   /*
@@ -1732,7 +1721,9 @@
       timestamp === "" ||
       Number(timestamp) <= 0
     ) {
+
       return "-";
+
     }
 
     var date =
@@ -1745,7 +1736,9 @@
         date.getTime()
       )
     ) {
+
       return "-";
+
     }
 
     return date.toLocaleString(
@@ -1755,6 +1748,7 @@
         timeStyle: "medium"
       }
     );
+
   }
 
   /*
@@ -1795,13 +1789,18 @@
     setTimeout(
       function () {
 
-        if (toast.parentNode) {
+        if (
+          toast.parentNode
+        ) {
+
           toast.remove();
+
         }
 
       },
-      3000
+      3500
     );
+
   }
 
   /*
@@ -1888,29 +1887,24 @@
 
   /*
    * ============================================================
-   * LOAD DASHBOARD
+   * LOAD DASHBOARD DATA
+   * ============================================================
+   *
+   * Hanya mengambil data yang sudah tersimpan di KV.
+   *
+   * Tidak meminta inventory baru.
+   *
    * ============================================================
    */
 
   async function loadDashboard() {
 
     if (dashboardLoading) {
-      return;
+      return false;
     }
 
-    dashboardLoading = true;
-
-    var refreshButton =
-      document.getElementById(
-        "refreshButton"
-      );
-
-    if (refreshButton) {
-
-      refreshButton.disabled =
-        true;
-
-    }
+    dashboardLoading =
+      true;
 
     try {
 
@@ -1933,14 +1927,14 @@
       var data =
         await response.json();
 
-      if (
-        !response.ok
-      ) {
+      if (!response.ok) {
 
         throw new Error(
           data.error ||
-          "HTTP " +
-          response.status
+          (
+            "HTTP " +
+            response.status
+          )
         );
 
       }
@@ -2064,6 +2058,8 @@
 
       renderBots();
 
+      return true;
+
     } catch (error) {
 
       console.error(
@@ -2076,19 +2072,204 @@
         "Gagal mengambil data dashboard"
       );
 
+      return false;
+
     } finally {
 
       dashboardLoading =
         false;
 
-      if (refreshButton) {
+    }
 
-        refreshButton.disabled =
+  }
+
+  /*
+   * ============================================================
+   * REFRESH SEMUA
+   * ============================================================
+   *
+   * SATU tombol untuk:
+   *
+   * 1. Meminta Worker queue inventory ke semua bot.
+   * 2. Mengambil ulang dashboard.
+   *
+   * ============================================================
+   */
+
+  async function refreshAll() {
+
+    if (
+      refreshAllLoading ||
+      dashboardLoading
+    ) {
+
+      return;
+
+    }
+
+    refreshAllLoading =
+      true;
+
+    var button =
+      document.getElementById(
+        "refreshButton"
+      );
+
+    if (button) {
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "↻ Refreshing...";
+
+    }
+
+    try {
+
+      /*
+       * ======================================================
+       * LANGKAH 1
+       * ======================================================
+       *
+       * Queue REQUEST_INVENTORY
+       * ke SEMUA bot.
+       */
+
+      var commandResponse =
+        await fetch(
+          "/api/command/inventory/all",
+          {
+            method: "POST",
+
+            cache: "no-store",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Authorization":
+                DASHBOARD_TOKEN
+
+            },
+
+            body:
+              JSON.stringify({})
+          }
+        );
+
+      var commandData;
+
+      try {
+
+        commandData =
+          await commandResponse.json();
+
+      } catch {
+
+        throw new Error(
+          "Response Worker bukan JSON valid."
+        );
+
+      }
+
+      if (
+        !commandResponse.ok ||
+        !commandData.success
+      ) {
+
+        throw new Error(
+          commandData.error ||
+          (
+            "Gagal meminta refresh semua bot. HTTP " +
+            commandResponse.status
+          )
+        );
+
+      }
+
+      /*
+       * ======================================================
+       * LANGKAH 2
+       * ======================================================
+       *
+       * Ambil dashboard terbaru.
+       *
+       * Catatan:
+       * inventory yang baru diminta belum tentu
+       * sudah dikirim bot pada saat ini.
+       */
+
+      await loadDashboard();
+
+      var total =
+        Number(
+          commandData.totalBots ||
+          0
+        );
+
+      var queued =
+        Number(
+          commandData.queued ||
+          0
+        );
+
+      var alreadyQueued =
+        Number(
+          commandData.alreadyQueued ||
+          0
+        );
+
+      if (total === 0) {
+
+        showToast(
+          "Tidak ada bot yang terdaftar."
+        );
+
+      } else {
+
+        showToast(
+          "Refresh dikirim ke " +
+          total +
+          " bot. " +
+          queued +
+          " command baru, " +
+          alreadyQueued +
+          " sudah dalam antrean."
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Refresh all error:",
+        error
+      );
+
+      showToast(
+        error.message ||
+        "Gagal melakukan refresh."
+      );
+
+    } finally {
+
+      refreshAllLoading =
+        false;
+
+      if (button) {
+
+        button.disabled =
           false;
+
+        button.textContent =
+          "↻ Refresh";
 
       }
 
     }
+
   }
 
   /*
@@ -2167,6 +2348,7 @@
         '</tr>';
 
       return;
+
     }
 
     table.innerHTML =
@@ -2277,11 +2459,21 @@
 
                   "<div class='actions'>" +
 
+                    /*
+                     * ==================================================
+                     * INVENTORY
+                     * ==================================================
+                     *
+                     * TIDAK ADA REQUEST.
+                     *
+                     * Langsung membaca data dari bots[].
+                     */
+
                     "<button " +
                       "class='icon-btn' " +
-                      "title='Refresh Inventory' " +
-                      "aria-label='Refresh Inventory' " +
-                      "onclick='requestInventory(" +
+                      "title='Lihat Inventory' " +
+                      "aria-label='Lihat Inventory' " +
+                      "onclick='openInventoryFromBot(" +
                         JSON.stringify(
                           username
                         ) +
@@ -2317,11 +2509,21 @@
 
   /*
    * ============================================================
-   * REQUEST INVENTORY
+   * OPEN INVENTORY DARI CACHE DASHBOARD
+   * ============================================================
+   *
+   * PENTING:
+   *
+   * Fungsi ini TIDAK melakukan fetch().
+   *
+   * Inventory sudah ada di:
+   *
+   * bots[]
+   *
    * ============================================================
    */
 
-  async function requestInventory(
+  function openInventoryFromBot(
     username
   ) {
 
@@ -2338,23 +2540,17 @@
       );
 
       return;
+
     }
 
-    currentInventoryBot =
-      username;
-
-    /*
-     * Cari timestamp inventory
-     * sebelum command dikirim.
-     */
-
-    var botBefore =
+    var bot =
       bots.find(
-        function (bot) {
+        function (item) {
 
           return (
             String(
-              bot.username ||
+              item &&
+              item.username ||
               ""
             ) ===
             username
@@ -2363,458 +2559,58 @@
         }
       );
 
-    var previousUpdatedAt =
-      botBefore &&
-      botBefore.inventoryUpdatedAt
-        ? Number(
-            botBefore.inventoryUpdatedAt
-          )
-        : 0;
+    if (!bot) {
 
-    if (
-      !Number.isFinite(
-        previousUpdatedAt
-      )
-    ) {
+      showToast(
+        "Data bot tidak ditemukan."
+      );
 
-      previousUpdatedAt = 0;
+      return;
 
     }
+
+    currentInventoryBot =
+      username;
 
     openInventoryModal(
       username
     );
 
-    var inventoryBody =
-      document.getElementById(
-        "inventoryBody"
-      );
-
-    if (!inventoryBody) {
-      return;
-    }
-
-    inventoryBody.innerHTML =
-      '<div class="loading">' +
-
-        '<div class="spinner"></div>' +
-
-        'Mengirim perintah ke bot...' +
-
-      '</div>';
-
-    try {
-
-      var response =
-        await fetch(
-          "/api/command/inventory",
-          {
-            method: "POST",
-
-            cache: "no-store",
-
-            headers: {
-
-              "Content-Type":
-                "application/json",
-
-              "Authorization":
-                DASHBOARD_TOKEN
-
-            },
-
-            body:
-              JSON.stringify(
-                {
-                  bot_username:
-                    username
-                }
-              )
-
-          }
-        );
-
-      var data;
-
-      try {
-
-        data =
-          await response.json();
-
-      } catch {
-
-        throw new Error(
-          "Response Worker bukan JSON valid."
-        );
-
-      }
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-
-        throw new Error(
-          data.error ||
-          "Gagal mengirim command inventory. HTTP " +
-          response.status
-        );
-
-      }
-
-      showToast(
-        data.queued
-          ? (
-            "Perintah refresh dikirim ke " +
-            username
-          )
-          : (
-            "Refresh inventory sudah dalam antrean."
-          )
-      );
-
-      inventoryBody.innerHTML =
-        '<div class="loading">' +
-
-          '<div class="spinner"></div>' +
-
-          'Menunggu inventory terbaru dari bot...' +
-
-          '<div style="margin-top:8px;font-size:11px">' +
-            'Maksimal 30 detik' +
-          '</div>' +
-
-        '</div>';
-
-      startInventoryPolling(
-        username,
-        previousUpdatedAt
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Inventory command error:",
-        error
-      );
-
-      inventoryBody.innerHTML =
-        '<div class="empty">' +
-
-          escapeHtml(
-            error.message ||
-            "Terjadi kesalahan."
-          ) +
-
-        '</div>';
-
-      showToast(
-        error.message ||
-        "Gagal meminta inventory."
-      );
-
-    }
-
-  }
-
-  /*
-   * ============================================================
-   * POLLING INVENTORY
-   * ============================================================
-   */
-
-  function startInventoryPolling(
-    username,
-    previousUpdatedAt
-  ) {
-
-    if (
-      inventoryRefreshTimer
-    ) {
-
-      clearInterval(
-        inventoryRefreshTimer
-      );
-
-      inventoryRefreshTimer =
-        null;
-
-    }
-
-    var startedAt =
-      Date.now();
-
-    var timeout =
-      30000;
-
     /*
-     * Fungsi untuk mengambil inventory.
+     * Langsung render data cache.
      */
 
-    async function poll() {
+    renderInventory({
+      grouped:
+        Array.isArray(
+          bot.groupedInventory
+        )
+          ? bot.groupedInventory
+          : [],
 
-      /*
-       * Jangan lanjut polling kalau
-       * modal sudah pindah ke bot lain.
-       */
+      itemCounts:
+        bot.itemCounts &&
+        typeof bot.itemCounts ===
+          "object"
+          ? bot.itemCounts
+          : {},
 
-      if (
-        currentInventoryBot !==
-        username
-      ) {
+      totalItems:
+        Number(
+          bot.inventoryCount ||
+          0
+        ),
 
-        if (
-          inventoryRefreshTimer
-        ) {
+      crystalEggCount:
+        Number(
+          bot.crystalEggCount ||
+          0
+        ),
 
-          clearInterval(
-            inventoryRefreshTimer
-          );
-
-          inventoryRefreshTimer =
-            null;
-
-        }
-
-        return;
-
-      }
-
-      try {
-
-        var response =
-          await fetch(
-            "/api/inventory/" +
-            encodeURIComponent(
-              username
-            ) +
-            "?t=" +
-            Date.now(),
-            {
-              method: "GET",
-
-              cache: "no-store",
-
-              headers: {
-                "Cache-Control":
-                  "no-cache"
-              }
-            }
-          );
-
-        if (!response.ok) {
-
-          console.warn(
-            "Inventory HTTP:",
-            response.status
-          );
-
-          return;
-
-        }
-
-        var data =
-          await response.json();
-
-        if (
-          !data ||
-          !data.success
-        ) {
-
-          return;
-
-        }
-
-        var updatedAt =
-          Number(
-            data.inventoryUpdatedAt ||
-            0
-          );
-
-        if (
-          !Number.isFinite(
-            updatedAt
-          )
-        ) {
-
-          updatedAt = 0;
-
-        }
-
-        /*
-         * Inventory baru:
-         *
-         * previousUpdatedAt = 0
-         * berarti belum ada timestamp sebelumnya.
-         *
-         * Jika timestamp baru lebih besar,
-         * berarti bot sudah mengirim telemetry baru.
-         */
-
-        var isNewInventory =
-          previousUpdatedAt === 0 ||
-          updatedAt >
-            previousUpdatedAt;
-
-        if (
-          isNewInventory
-        ) {
-
-          stopInventoryPolling();
-
-          renderInventory({
-            grouped:
-              Array.isArray(
-                data.groupedInventory
-              )
-                ? data.groupedInventory
-                : [],
-
-            itemCounts:
-              data.itemCounts &&
-              typeof data.itemCounts ===
-                "object"
-                ? data.itemCounts
-                : {},
-
-            totalItems:
-              Number(
-                data.inventoryCount ||
-                0
-              ),
-
-            crystalEggCount:
-              Number(
-                data.crystalEggCount ||
-                0
-              ),
-
-            updatedAt:
-              data.inventoryUpdatedAt ||
-              null
-          });
-
-          showToast(
-            "Inventory " +
-            username +
-            " berhasil diperbarui."
-          );
-
-          return;
-
-        }
-
-        /*
-         * Kalau belum ada inventory baru,
-         * tunggu lagi.
-         */
-
-        if (
-          Date.now() -
-          startedAt >=
-          timeout
-        ) {
-
-          stopInventoryPolling();
-
-          /*
-           * Tampilkan data terakhir yang ada.
-           * Ini lebih baik daripada modal loading
-           * selamanya.
-           */
-
-          renderInventory({
-            grouped:
-              Array.isArray(
-                data.groupedInventory
-              )
-                ? data.groupedInventory
-                : [],
-
-            itemCounts:
-              data.itemCounts &&
-              typeof data.itemCounts ===
-                "object"
-                ? data.itemCounts
-                : {},
-
-            totalItems:
-              Number(
-                data.inventoryCount ||
-                0
-              ),
-
-            crystalEggCount:
-              Number(
-                data.crystalEggCount ||
-                0
-              ),
-
-            updatedAt:
-              data.inventoryUpdatedAt ||
-              null,
-
-            stale:
-              true
-          });
-
-          showToast(
-            "Bot belum mengirim inventory terbaru."
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Inventory polling error:",
-          error
-        );
-
-        /*
-         * Jangan langsung menghentikan polling
-         * hanya karena satu request gagal.
-         */
-
-      }
-
-    }
-
-    /*
-     * Request pertama langsung,
-     * tidak perlu menunggu 1 detik.
-     */
-
-    poll();
-
-    inventoryRefreshTimer =
-      setInterval(
-        poll,
-        1000
-      );
-
-  }
-
-  /*
-   * ============================================================
-   * STOP INVENTORY POLLING
-   * ============================================================
-   */
-
-  function stopInventoryPolling() {
-
-    if (
-      inventoryRefreshTimer
-    ) {
-
-      clearInterval(
-        inventoryRefreshTimer
-      );
-
-      inventoryRefreshTimer =
-        null;
-
-    }
+      updatedAt:
+        bot.inventoryUpdatedAt ||
+        null
+    });
 
   }
 
@@ -2881,7 +2677,8 @@
           )
         : "-";
 
-    var html = "";
+    var html =
+      "";
 
     /*
      * SUMMARY
@@ -2941,7 +2738,7 @@
       '</div>';
 
     /*
-     * UPDATED TIME
+     * UPDATED
      */
 
     html +=
@@ -2953,20 +2750,10 @@
           updatedAt
         ) +
 
-        (
-          inventory.stale
-            ? (
-              ' · <span style="color:var(--yellow)">' +
-                'Data terakhir · belum ada update baru' +
-              '</span>'
-            )
-            : ""
-        ) +
-
       '</div>';
 
     /*
-     * INVENTORY KOSONG
+     * EMPTY
      */
 
     if (
@@ -3139,8 +2926,6 @@
    */
 
   function closeModal() {
-
-    stopInventoryPolling();
 
     currentInventoryBot =
       "";
@@ -3319,6 +3104,15 @@
   /*
    * ============================================================
    * SAVE CONFIG
+   * ============================================================
+   *
+   * Catatan:
+   * Worker yang kamu kirim saat ini belum memiliki
+   * /api/command/config.
+   *
+   * Fungsi ini dipertahankan agar UI tidak hilang,
+   * tetapi akan membutuhkan endpoint Worker tersebut.
+   *
    * ============================================================
    */
 
@@ -3650,11 +3444,14 @@
    * ============================================================
    */
 
-  document
-    .getElementById(
+  var inventoryModal =
+    document.getElementById(
       "inventoryModal"
-    )
-    .addEventListener(
+    );
+
+  if (inventoryModal) {
+
+    inventoryModal.addEventListener(
       "click",
       function (event) {
 
@@ -3670,11 +3467,16 @@
       }
     );
 
-  document
-    .getElementById(
+  }
+
+  var configModal =
+    document.getElementById(
       "configModal"
-    )
-    .addEventListener(
+    );
+
+  if (configModal) {
+
+    configModal.addEventListener(
       "click",
       function (event) {
 
@@ -3690,6 +3492,8 @@
       }
     );
 
+  }
+
   /*
    * ============================================================
    * INITIAL LOAD
@@ -3701,8 +3505,10 @@
   checkHealth();
 
   /*
-   * Dashboard otomatis refresh
+   * Dashboard otomatis mengambil data KV
    * setiap 30 detik.
+   *
+   * Ini TIDAK meminta inventory baru.
    */
 
   setInterval(
